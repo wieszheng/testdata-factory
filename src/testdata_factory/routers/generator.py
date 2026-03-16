@@ -83,6 +83,11 @@ class GenerateRequest(BaseModel):
         default=["phone", "email", "id_card"],
         description="要生成的数据类型"
     )
+    # 新增：自定义正则规则
+    custom_rules: Optional[list[dict]] = Field(
+        default=None,
+        description="自定义正则规则列表，每项包含 name 和 pattern"
+    )
 
 
 class RegexGenerateRequest(BaseModel):
@@ -115,20 +120,40 @@ async def generate_data(request: GenerateRequest):
     """生成混合数据"""
     valid_types = [t for t in request.types if t in DATA_TYPE_GENERATORS]
     
-    if not valid_types:
+    # 处理自定义正则规则
+    custom_fields = []
+    if request.custom_rules:
+        for rule in request.custom_rules:
+            if rule.get("name") and rule.get("pattern"):
+                custom_fields.append({
+                    "name": rule["name"],
+                    "pattern": rule["pattern"]
+                })
+    
+    if not valid_types and not custom_fields:
         valid_types = ["phone", "email", "id_card"]
     
     data = []
     
     for _ in range(request.count):
         item = {}
+        # 生成内置类型数据
         for data_type in valid_types:
             item[data_type] = DATA_TYPE_GENERATORS[data_type]()
+        # 生成自定义正则数据
+        for field in custom_fields:
+            try:
+                item[field["name"]] = generate_from_regex(field["pattern"])
+            except:
+                item[field["name"]] = ""
         data.append(item)
+    
+    # 合并所有字段名
+    all_types = valid_types + [f["name"] for f in custom_fields]
     
     return GenerateResponse(
         count=len(data),
-        types=valid_types,
+        types=all_types,
         data=data
     )
 
