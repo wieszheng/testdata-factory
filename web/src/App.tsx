@@ -57,7 +57,8 @@ function AppContent() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
-  const [showRegex, setShowRegex] = useState(false)
+  // 自定义正则模态框
+  const [showRegexModal, setShowRegexModal] = useState(false)
   const [regexPattern, setRegexPattern] = useState('')
   const [regexName, setRegexName] = useState('自定义字段')
   const [templates, setTemplates] = useState<RegexTemplate[]>([])
@@ -316,103 +317,19 @@ ${values.join(',\n')};`
               </div>
             </div>
 
-            {/* 自定义正则规则 - 使用 div 替代 Card 组件 */}
+            {/* 添加自定义正则规则按钮 */}
             <div className="mb-3">
-              <div className={`rounded-lg overflow-hidden ${isDark ? 'bg-white/5 border border-white/10' : 'bg-gray-50 border border-gray-200'}`}>
-                <button 
-                  onClick={() => setShowRegex(!showRegex)} 
-                  className={`w-full flex items-center justify-between px-3 py-2.5 text-[11px] font-medium transition-colors ${
-                    isDark 
-                      ? 'text-[#5a5eff] hover:bg-white/5' 
-                      : 'text-[#4a3df0] hover:bg-gray-100'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Code className="w-3.5 h-3.5" />
-                    自定义正则规则
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-normal ${isDark ? 'bg-white/10 text-[#94a3b8]' : 'bg-gray-200 text-gray-500'}`}>
-                      高级
-                    </span>
-                  </div>
-                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showRegex ? 'rotate-180' : ''}`} />
-                </button>
-                
-                {showRegex && (
-                  <div className={`p-3 space-y-3 border-t ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
-                        <label className={`text-[10px] font-medium ${isDark ? 'text-[#94a3b8]' : 'text-gray-600'}`}>
-                          字段名称
-                        </label>
-                        <input 
-                          type="text" 
-                          value={regexName} 
-                          onChange={(e) => setRegexName(e.target.value)} 
-                          placeholder="如：订单号"
-                          className={`h-8 text-[10px] rounded-md border px-2.5 w-full transition-colors ${
-                            isDark 
-                              ? 'bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#5a5eff] focus:outline-none' 
-                              : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#4a3df0] focus:outline-none'
-                          }`} 
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className={`text-[10px] font-medium ${isDark ? 'text-[#94a3b8]' : 'text-gray-600'}`}>
-                          选择模板
-                        </label>
-                        <select 
-                          value={regexPattern} 
-                          onChange={(e) => { 
-                            setRegexPattern(e.target.value); 
-                            const t = templates.find(t => t.pattern === e.target.value); 
-                            if (t) setRegexName(t.name);
-                          }} 
-                          className={`h-8 text-[10px] rounded-md border px-2.5 w-full transition-colors ${
-                            isDark 
-                              ? 'bg-white/5 border-white/10 text-white' 
-                              : 'bg-white border-gray-300 text-gray-900'
-                          }`}
-                        >
-                          <option value="">选择模板...</option>
-                          {templates.map(t => (
-                            <option key={t.name} value={t.pattern}>{t.name}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-1.5">
-                      <label className={`text-[10px] font-medium ${isDark ? 'text-[#94a3b8]' : 'text-gray-600'}`}>
-                        正则表达式
-                      </label>
-                      <input 
-                        type="text" 
-                        value={regexPattern} 
-                        onChange={(e) => setRegexPattern(e.target.value)} 
-                        placeholder="如：ORD\d{14} 或 \d{4}-\d{4}-\d{4}"
-                        className={`h-8 text-[10px] font-mono rounded-md border px-2.5 w-full transition-colors ${
-                          isDark 
-                            ? 'bg-white/5 border-white/10 text-[#05c4a5] placeholder:text-white/30 focus:border-[#05c4a5] focus:outline-none' 
-                            : 'bg-white border-gray-300 text-[#059669] placeholder:text-gray-400 focus:border-[#059669] focus:outline-none'
-                        }`} 
-                      />
-                    </div>
-                    
-                    <button 
-                      onClick={handleRegexGenerate} 
-                      disabled={isGenerating || !regexPattern.trim()} 
-                      className={`w-full h-8 text-[10px] font-medium rounded-md transition-all flex items-center justify-center gap-1.5 ${
-                        isDark 
-                          ? 'bg-gradient-to-r from-[#5a5eff] to-[#768dff] hover:shadow-lg hover:shadow-[#5a5eff]/25' 
-                          : 'bg-gradient-to-r from-[#4a3df0] to-[#5a5eff] hover:shadow-lg hover:shadow-[#4a3df0]/25 text-white'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      <Wand2 className="w-3 h-3" />
-                      根据正则生成数据
-                    </button>
-                  </div>
-                )}
-              </div>
+              <button 
+                onClick={() => setShowRegexModal(true)} 
+                className={`w-full py-2.5 rounded-lg border-2 border-dashed transition-colors flex items-center justify-center gap-2 text-[11px] font-medium ${
+                  isDark 
+                    ? 'border-white/20 text-[#5a5eff] hover:bg-[#5a5eff]/10 hover:border-[#5a5eff]/40' 
+                    : 'border-gray-300 text-[#4a3df0] hover:bg-[#4a3df0]/5 hover:border-[#4a3df0]/40'
+                }`}
+              >
+                <Code className="w-3.5 h-3.5" />
+                添加自定义正则规则
+              </button>
             </div>
 
             <div className={`mb-3 h-px ${isDark ? 'bg-gradient-to-r from-transparent via-[#ff6b4a]/50 to-transparent' : 'bg-gray-200'}`} />
@@ -580,6 +497,111 @@ ${values.join(',\n')};`
           )}
         </div>
       </section>
+
+      {/* 自定义正则规则模态框 */}
+      {showRegexModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className={`p-4 w-full max-w-md mx-4 rounded-xl ${isDark ? 'glass-card' : 'bg-white shadow-2xl border border-gray-200'}`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`text-sm font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                <Code className="w-4 h-4 text-[#5a5eff]" />
+                自定义正则规则
+              </h3>
+              <button onClick={() => setShowRegexModal(false)} className={isDark ? 'text-[#94a3b8] hover:text-white' : 'text-gray-400 hover:text-gray-600'}>
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <label className={`text-[10px] font-medium ${isDark ? 'text-[#94a3b8]' : 'text-gray-600'}`}>
+                  字段名称
+                </label>
+                <input 
+                  type="text" 
+                  value={regexName} 
+                  onChange={(e) => setRegexName(e.target.value)} 
+                  placeholder="如：订单号"
+                  className={`h-9 text-[11px] rounded-md border px-3 w-full transition-colors ${
+                    isDark 
+                      ? 'bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#5a5eff] focus:outline-none' 
+                      : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#4a3df0] focus:outline-none'
+                  }`} 
+                />
+              </div>
+              
+              <div className="space-y-1.5">
+                <label className={`text-[10px] font-medium ${isDark ? 'text-[#94a3b8]' : 'text-gray-600'}`}>
+                  选择模板（可选）
+                </label>
+                <select 
+                  value={regexPattern} 
+                  onChange={(e) => { 
+                    setRegexPattern(e.target.value); 
+                    const t = templates.find(t => t.pattern === e.target.value); 
+                    if (t) setRegexName(t.name);
+                  }} 
+                  className={`h-9 text-[11px] rounded-md border px-3 w-full transition-colors ${
+                    isDark 
+                      ? 'bg-white/5 border-white/10 text-white' 
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
+                >
+                  <option value="">选择模板...</option>
+                  {templates.map(t => (
+                    <option key={t.name} value={t.pattern}>{t.name}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="space-y-1.5">
+                <label className={`text-[10px] font-medium ${isDark ? 'text-[#94a3b8]' : 'text-gray-600'}`}>
+                  正则表达式
+                </label>
+                <input 
+                  type="text" 
+                  value={regexPattern} 
+                  onChange={(e) => setRegexPattern(e.target.value)} 
+                  placeholder="如：ORD\d{14} 或 \d{4}-\d{4}-\d{4}"
+                  className={`h-9 text-[11px] font-mono rounded-md border px-3 w-full transition-colors ${
+                    isDark 
+                      ? 'bg-white/5 border-white/10 text-[#05c4a5] placeholder:text-white/30 focus:border-[#05c4a5] focus:outline-none' 
+                      : 'bg-white border-gray-300 text-[#059669] placeholder:text-gray-400 focus:border-[#059669] focus:outline-none'
+                  }`} 
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-2 mt-4">
+              <button 
+                onClick={() => setShowRegexModal(false)} 
+                className={`py-2 px-4 rounded-lg text-[11px] font-medium transition-colors ${
+                  isDark ? 'bg-white/10 text-[#94a3b8] hover:bg-white/20' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                取消
+              </button>
+              <button 
+                onClick={() => {
+                  if (regexPattern.trim()) {
+                    handleRegexGenerate()
+                    setShowRegexModal(false)
+                  }
+                }} 
+                disabled={isGenerating || !regexPattern.trim()}
+                className={`py-2 px-4 rounded-lg text-[11px] font-medium transition-all flex items-center gap-1.5 ${
+                  isDark 
+                    ? 'bg-gradient-to-r from-[#5a5eff] to-[#768dff] hover:shadow-lg hover:shadow-[#5a5eff]/25' 
+                    : 'bg-gradient-to-r from-[#4a3df0] to-[#5a5eff] hover:shadow-lg hover:shadow-[#4a3df0]/25 text-white'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                <Wand2 className="w-3 h-3" />
+                生成数据
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* SQL 导出弹窗 */}
       {showSqlModal && (
