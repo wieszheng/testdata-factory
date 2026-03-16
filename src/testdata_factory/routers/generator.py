@@ -13,6 +13,7 @@ from ..generators.date import generate_date, generate_datetime
 from ..generators.bank_card import generate_bank_card
 from ..generators.name import generate_name
 from ..generators.url import generate_url
+from ..generators.regex import generate_from_regex, list_templates
 
 router = APIRouter()
 
@@ -55,8 +56,15 @@ class GenerateRequest(BaseModel):
     count: int = Field(default=10, ge=1, le=1000, description="生成数量")
     types: list[str] = Field(
         default=["phone", "email", "id_card"],
-        description="要生成的数据类型，可选: phone, email, id_card, ip, ipv6, address, date, datetime, bank_card, name, url"
+        description="要生成的数据类型"
     )
+
+
+class RegexGenerateRequest(BaseModel):
+    """正则生成请求"""
+    count: int = Field(default=10, ge=1, le=1000, description="生成数量")
+    pattern: str = Field(..., description="正则表达式模式")
+    name: Optional[str] = Field(default=None, description="字段名称")
 
 
 class GenerateResponse(BaseModel):
@@ -65,6 +73,14 @@ class GenerateResponse(BaseModel):
     count: int
     types: list[str]
     data: list[dict]
+
+
+class RegexGenerateResponse(BaseModel):
+    """正则生成响应"""
+    success: bool = True
+    count: int
+    pattern: str
+    data: list[str]
 
 
 # ===== API 端点 =====
@@ -76,21 +92,7 @@ async def generate_data(request: GenerateRequest):
     
     - **count**: 生成数量 (1-1000)
     - **types**: 数据类型列表
-    
-    可选数据类型：
-    - phone: 手机号
-    - email: 邮箱
-    - id_card: 身份证号
-    - ip: IPv4 地址
-    - ipv6: IPv6 地址
-    - address: 地址
-    - date: 日期
-    - datetime: 日期时间
-    - bank_card: 银行卡号
-    - name: 姓名
-    - url: URL
     """
-    # 过滤有效的数据类型
     valid_types = [t for t in request.types if t in DATA_TYPE_GENERATORS]
     
     if not valid_types:
@@ -109,6 +111,56 @@ async def generate_data(request: GenerateRequest):
         types=valid_types,
         data=data
     )
+
+
+@router.post("/regex", response_model=RegexGenerateResponse)
+async def generate_from_regex_pattern(request: RegexGenerateRequest):
+    """
+    根据正则表达式生成数据
+    
+    支持的格式：
+    - \d: 数字
+    - \w: 字母数字下划线
+    - \a: 小写字母
+    - \A: 大写字母
+    - [abc], [a-z]: 字符类
+    - {n}, {n,m}: 重复次数
+    - *, +, ?: 量词
+    - .: 任意字符
+    - 普通字符: 原样输出
+    
+    示例：
+    - 手机号: 1[3-9]\d{9}
+    - 邮箱: [a-z]{3,8}\d{2,4}@(qq|163|126)\.com
+    - 订单号: ORD\d{14}
+    """
+    try:
+        results = [generate_from_regex(request.pattern) for _ in range(request.count)]
+        return RegexGenerateResponse(
+            success=True,
+            count=len(results),
+            pattern=request.pattern,
+            data=results
+        )
+    except Exception as e:
+        return RegexGenerateResponse(
+            success=False,
+            count=0,
+            pattern=request.pattern,
+            data=[]
+        )
+
+
+@router.get("/templates")
+async def get_regex_templates():
+    """获取预定义的正则模板"""
+    templates = list_templates()
+    return {
+        "templates": [
+            {"name": name, "pattern": pattern}
+            for name, pattern in templates.items()
+        ]
+    }
 
 
 @router.get("/types")
