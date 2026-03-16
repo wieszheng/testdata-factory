@@ -340,18 +340,19 @@ ${values.join(',\n')};`
 
             <div className={`mb-3 h-px ${isDark ? 'bg-gradient-to-r from-transparent via-[#ff6b4a]/50 to-transparent' : 'bg-gray-200'}`} />
 
-            {/* 数量和生成按钮 */}
-            <div className="flex items-end justify-end gap-2">
-              <div className="w-[70px]">
-                <label className={`block text-[10px] mb-1 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>数量</label>
-                <input type="number" value={count} onChange={(e) => setCount(Math.max(1, Math.min(1000, parseInt(e.target.value) || 1)))} min={1} max={1000} className={`text-center text-xs font-semibold py-1 px-1 rounded w-full ${isDark ? 'input-glass' : 'border border-gray-300 bg-white'}`} />
+            {error && <div className="mb-3 p-2 bg-red-500/10 border border-red-500/30 rounded flex items-center gap-2"><AlertCircle className="w-3 h-3 text-red-400" /><p className="text-[10px] text-red-400">{error}</p></div>}
+
+            {/* 底部操作栏 */}
+            <div className={`flex items-center justify-between pt-3 mt-3 border-t ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
+              <div className="flex items-center gap-2">
+                <label className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>生成数量</label>
+                <input type="number" value={count} onChange={(e) => setCount(Math.max(1, Math.min(1000, parseInt(e.target.value) || 1)))} min={1} max={1000} className={`text-center text-xs font-semibold py-1 px-2 rounded w-16 ${isDark ? 'input-glass' : 'border border-gray-300 bg-white'}`} />
+                <span className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-400'}`}>条</span>
               </div>
-              <button onClick={handleGenerate} disabled={isGenerating || selectedTypes.length === 0} className={`flex items-center justify-center gap-1 disabled:opacity-50 h-[28px] px-3 text-[10px] rounded font-medium ${isDark ? 'btn-primary' : 'bg-gradient-to-r from-[#ff6b4a] to-[#ff8f7a] text-white shadow hover:shadow-md transition-shadow'}`}>
-                {isGenerating ? <><div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />生成中</> : <><Sparkles className="w-3 h-3" />生成</>}
+              <button onClick={handleGenerate} disabled={isGenerating || selectedTypes.length === 0} className={`flex items-center justify-center gap-1.5 disabled:opacity-50 h-[32px] px-4 text-[11px] rounded-lg font-medium ${isDark ? 'btn-primary' : 'bg-gradient-to-r from-[#ff6b4a] to-[#ff8f7a] text-white shadow hover:shadow-md transition-shadow'}`}>
+                {isGenerating ? <><div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />生成中...</> : <><Sparkles className="w-3.5 h-3.5" />立即生成</>}
               </button>
             </div>
-
-            {error && <div className="mt-2 p-2 bg-red-500/10 border border-red-500/30 rounded flex items-center gap-2"><AlertCircle className="w-3 h-3 text-red-400" /><p className="text-[10px] text-red-400">{error}</p></div>}
           </div>
 
           {/* 数据库逆向面板 */}
