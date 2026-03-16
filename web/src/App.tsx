@@ -313,7 +313,7 @@ ${values.join(',\n')};`
                       selectedTypes.includes(type.key) 
                         ? isDark 
                           ? 'bg-gradient-to-r from-[#ff6b4a]/20 to-[#5a5eff]/20 border border-[#ff6b4a]/40 text-white' 
-                          : 'bg-[#ff6b4a]/10 border border-[#ff6b4a]/40 text-[#ff6b4a]'
+                          : 'bg-[#ff6b4a] text-white border border-[#ff6b4a] shadow-sm'
                         : isDark
                           ? 'bg-white/5 border border-white/10 text-[#94a3b8] hover:bg-white/10'
                           : 'bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200'
