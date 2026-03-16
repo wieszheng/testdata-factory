@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import generator
+from .routers import generator, database
 
 app = FastAPI(
     title="TestData Factory API",
@@ -11,11 +11,11 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# CORS 配置 - 允许前端访问
+# CORS 配置
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",  # Vite 开发服务器
+        "http://localhost:5173",
         "http://localhost:3000",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:3000",
@@ -27,6 +27,7 @@ app.add_middleware(
 
 # 注册路由
 app.include_router(generator.router, prefix="/api", tags=["generator"])
+app.include_router(database.router, prefix="/api/database", tags=["database"])
 
 
 @app.get("/")
