@@ -45,7 +45,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ toasts, toast, dismiss }}>
       {children}
       {/* Toast 容器 */}
-      <div className="fixed top-14 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-1.5 max-w-xs">
+      <div className="fixed top-14 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-1.5 max-w-md">
         {toasts.map((t) => (
           <Toast
             key={t.id}
@@ -56,7 +56,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               <ToastIcon variant={t.variant} />
               <div className="flex-1 min-w-0">
                 {t.title && <ToastTitle>{t.title}</ToastTitle>}
-                <ToastDescription className="truncate">{t.description}</ToastDescription>
+                <ToastDescription>{t.description}</ToastDescription>
               </div>
             </div>
             <ToastClose onClick={() => dismiss(t.id)} />

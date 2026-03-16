@@ -74,7 +74,7 @@ const ToastDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("text-[11px] opacity-90", className)}
+    className={cn("text-[11px] opacity-90 line-clamp-2", className)}
     {...props}
   />
 ))
