@@ -70,6 +70,7 @@ function App() {
   const [dbTables, setDbTables] = useState<string[]>([])
   const [selectedTable, setSelectedTable] = useState('')
   const [dbError, setDbError] = useState<string | null>(null)
+  const [dbSuccess, setDbSuccess] = useState<string | null>(null)
 
   useEffect(() => {
     fetch(`${API_BASE}/templates`)
@@ -118,7 +119,7 @@ function App() {
   }
 
   const handleDbConnect = async () => {
-    setDbConnecting(true); setDbError(null); setDbTables([])
+    setDbConnecting(true); setDbError(null); setDbSuccess(null); setDbTables([])
     
     try {
       const response = await fetch(`${API_BASE}/database/connect`, {
@@ -128,10 +129,17 @@ function App() {
       })
       const result = await response.json()
       
-      if (result.success) { setDbTables(result.tables) }
-      else { setDbError(result.message) }
-    } catch { setDbError('连接失败') }
-    finally { setDbConnecting(false) }
+      if (result.success) {
+        setDbTables(result.tables)
+        setDbSuccess(result.message)
+      } else {
+        setDbError(result.message)
+      }
+    } catch (e) {
+      setDbError('连接失败，请检查后端服务是否运行')
+    } finally {
+      setDbConnecting(false)
+    }
   }
 
   const handleDbGenerate = async (tableName: string) => {
@@ -335,7 +343,19 @@ function App() {
                   {dbConnecting ? <><Loader2 className="w-3 h-3 animate-spin" />连接中...</> : <><Server className="w-3 h-3" />连接数据库</>}
                 </button>
                 
-                {dbError && <p className="text-[10px] text-red-400 text-center">{dbError}</p>}
+                {/* 提示信息 */}
+                {dbSuccess && (
+                  <div className="flex items-center gap-1.5 px-2 py-1.5 bg-[#05c4a5]/10 border border-[#05c4a5]/30 rounded">
+                    <Check className="w-3 h-3 text-[#05c4a5]" />
+                    <p className="text-[10px] text-[#05c4a5]">{dbSuccess}</p>
+                  </div>
+                )}
+                {dbError && (
+                  <div className="flex items-center gap-1.5 px-2 py-1.5 bg-red-500/10 border border-red-500/30 rounded">
+                    <AlertCircle className="w-3 h-3 text-red-400" />
+                    <p className="text-[10px] text-red-400">{dbError}</p>
+                  </div>
+                )}
                 
                 {/* 表列表 */}
                 {dbTables.length > 0 && (
