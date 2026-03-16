@@ -302,7 +302,7 @@ ${values.join(',\n')};`
 
       <section className="pb-8 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className={`p-3 sm:p-4 mb-3 rounded-xl ${isDark ? 'glass-card animate-glow' : 'bg-white shadow-lg border border-gray-200'}`}>
+          <div className={`p-3 sm:p-4 mb-3 rounded-xl ${isDark ? 'glass-card' : 'bg-white shadow-lg border border-gray-200'}`}>
             {/* 数据类型选择 */}
             <div className="mb-3">
               <label className={`block text-[10px] font-medium mb-1.5 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>选择数据类型</label>
