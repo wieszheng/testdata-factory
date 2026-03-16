@@ -356,4 +356,16 @@
     height: 1px;
     background: linear-gradient(90deg, transparent 0%, rgba(255, 107, 74, 0.5) 50%, transparent 100%);
   }
+  
+  /* Toast 动画 */
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -20px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
 }

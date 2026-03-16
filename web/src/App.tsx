@@ -4,10 +4,32 @@ import {
   Settings, Database, Wand2, ChevronDown, Globe, MapPin,
   Calendar, User, Link, AlertCircle, Code, Building, Briefcase,
   DollarSign, Palette, Fingerprint, Key, FileText, Table, FileJson,
-  Server, ChevronRight, X, Loader2
+  Server, ChevronRight, X, Loader2, CheckCircle, XCircle
 } from 'lucide-react'
 
 const API_BASE = 'http://localhost:8000/api'
+
+// Toast 组件
+function Toast({ message, type, onClose }: { message: string; type: 'success' | 'error'; onClose: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 5000)
+    return () => clearTimeout(timer)
+  }, [onClose])
+
+  return (
+    <div className={`fixed top-16 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg animate-[slideDown_0.3s_ease-out] ${
+      type === 'success' 
+        ? 'bg-[#05c4a5] text-white' 
+        : 'bg-red-500 text-white'
+    }`}>
+      {type === 'success' ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+      <span className="text-sm font-medium">{message}</span>
+      <button onClick={onClose} className="ml-2 hover:opacity-70">
+        <X className="w-4 h-4" />
+      </button>
+    </div>
+  )
+}
 
 interface DataType {
   key: string
@@ -71,6 +93,13 @@ function App() {
   const [selectedTable, setSelectedTable] = useState('')
   const [dbError, setDbError] = useState<string | null>(null)
   const [dbSuccess, setDbSuccess] = useState<string | null>(null)
+  
+  // Toast 提示
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+  
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type })
+  }
 
   useEffect(() => {
     fetch(`${API_BASE}/templates`)
@@ -132,11 +161,15 @@ function App() {
       if (result.success) {
         setDbTables(result.tables)
         setDbSuccess(result.message)
+        showToast(result.message, 'success')
       } else {
         setDbError(result.message)
+        showToast(result.message, 'error')
       }
     } catch (e) {
-      setDbError('连接失败，请检查后端服务是否运行')
+      const errorMsg = '连接失败，请检查后端服务是否运行'
+      setDbError(errorMsg)
+      showToast(errorMsg, 'error')
     } finally {
       setDbConnecting(false)
     }
@@ -198,6 +231,9 @@ function App() {
 
   return (
     <div className="min-h-screen">
+      {/* Toast 提示 */}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#ff6b4a] opacity-10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#5a5eff] opacity-10 rounded-full blur-3xl" />
