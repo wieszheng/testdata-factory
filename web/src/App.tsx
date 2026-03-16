@@ -317,19 +317,52 @@ ${values.join(',\n')};`
               </div>
             </div>
 
-            {/* 添加自定义正则规则按钮 */}
+            {/* 自定义正则规则区域 */}
             <div className="mb-3">
-              <button 
-                onClick={() => setShowRegexModal(true)} 
-                className={`w-full py-2.5 rounded-lg border-2 border-dashed transition-colors flex items-center justify-center gap-2 text-[11px] font-medium ${
-                  isDark 
-                    ? 'border-white/20 text-[#5a5eff] hover:bg-[#5a5eff]/10 hover:border-[#5a5eff]/40' 
-                    : 'border-gray-300 text-[#4a3df0] hover:bg-[#4a3df0]/5 hover:border-[#4a3df0]/40'
-                }`}
-              >
-                <Code className="w-3.5 h-3.5" />
-                添加自定义正则规则
-              </button>
+              {/* 头部：标题 + 添加按钮 */}
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Code className={`w-4 h-4 ${isDark ? 'text-[#5a5eff]' : 'text-[#4a3df0]'}`} />
+                  <div>
+                    <h3 className={`text-[11px] font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>自定义规则</h3>
+                    <p className={`text-[9px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>使用正则表达式生成自定义数据</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowRegexModal(true)} 
+                  className={`px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-colors flex items-center gap-1.5 ${
+                    isDark 
+                      ? 'bg-[#5a5eff]/20 text-[#5a5eff] hover:bg-[#5a5eff]/30' 
+                      : 'bg-[#4a3df0]/10 text-[#4a3df0] hover:bg-[#4a3df0]/20'
+                  }`}
+                >
+                  <Wand2 className="w-3 h-3" />
+                  添加规则
+                </button>
+              </div>
+              
+              {/* 已保存规则信息 */}
+              <div className={`flex items-center gap-3 text-[9px] mb-2 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>
+                <span className="flex items-center gap-1">
+                  <FileText className="w-3 h-3" />
+                  已保存规则 (0)
+                </span>
+                <span className="flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  预览数量: {count} 条
+                </span>
+              </div>
+              
+              {/* 占位区域 */}
+              <div className={`rounded-lg border-2 border-dashed p-4 text-center ${
+                isDark 
+                  ? 'border-white/10 bg-white/5' 
+                  : 'border-gray-200 bg-gray-50'
+              }`}>
+                <p className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-400'}`}>
+                  点击上方"添加规则"按钮创建自定义正则规则
+                </p>
+              </div>
             </div>
 
             <div className={`mb-3 h-px ${isDark ? 'bg-gradient-to-r from-transparent via-[#ff6b4a]/50 to-transparent' : 'bg-gray-200'}`} />
