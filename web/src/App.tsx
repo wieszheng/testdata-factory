@@ -4,7 +4,7 @@ import {
   Settings, Database, Wand2, ChevronDown, Globe, MapPin,
   Calendar, User, Link, AlertCircle, Code, Building, Briefcase,
   DollarSign, Palette, Fingerprint, Key, FileText, Table, FileJson,
-  Server, ChevronRight, X, Loader2, FileCode, Sun, Moon
+  Server, ChevronRight, X, Loader2, FileCode, Sun, Moon, Trash2, Edit
 } from 'lucide-react'
 import { ToastProvider, useToast } from './components/ui/toast-provider'
 
@@ -64,6 +64,17 @@ function AppContent() {
   const [templates, setTemplates] = useState<RegexTemplate[]>([])
   const [regexData, setRegexData] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<'table' | 'json'>('table')
+  
+  // 已保存的自定义规则
+  interface SavedRegex {
+    id: string
+    name: string
+    pattern: string
+    previewCount: number
+  }
+  const [savedRegexes, setSavedRegexes] = useState<SavedRegex[]>([])
+  const [editingRegexId, setEditingRegexId] = useState<string | null>(null)
+  const [regexPreviewCount, setRegexPreviewCount] = useState(10)
   
   // 主题切换
   const [isDark, setIsDark] = useState(true)
@@ -329,7 +340,12 @@ ${values.join(',\n')};`
                   </div>
                 </div>
                 <button 
-                  onClick={() => setShowRegexModal(true)} 
+                  onClick={() => {
+                    setRegexName('自定义字段')
+                    setRegexPattern('')
+                    setEditingRegexId(null)
+                    setShowRegexModal(true)
+                  }}
                   className={`px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-colors flex items-center gap-1.5 ${
                     isDark 
                       ? 'bg-[#5a5eff]/20 text-[#5a5eff] hover:bg-[#5a5eff]/30' 
@@ -341,28 +357,97 @@ ${values.join(',\n')};`
                 </button>
               </div>
               
-              {/* 已保存规则信息 */}
-              <div className={`flex items-center gap-3 text-[9px] mb-2 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>
-                <span className="flex items-center gap-1">
-                  <FileText className="w-3 h-3" />
-                  已保存规则 (0)
-                </span>
+              {/* 预览数量调节 */}
+              <div className={`flex items-center gap-2 mb-2 text-[9px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>
                 <span className="flex items-center gap-1">
                   <Sparkles className="w-3 h-3" />
-                  预览数量: {count} 条
+                  预览数量
+                </span>
+                <input 
+                  type="number" 
+                  value={regexPreviewCount} 
+                  onChange={(e) => setRegexPreviewCount(Math.max(1, Math.min(100, parseInt(e.target.value) || 1)))}
+                  min={1}
+                  max={100}
+                  className={`w-12 text-center text-[10px] py-0.5 rounded ${isDark ? 'input-glass' : 'border border-gray-300 bg-white'}`}
+                />
+                <span>条</span>
+                <span className="ml-auto flex items-center gap-1">
+                  <FileText className="w-3 h-3" />
+                  已保存 {savedRegexes.length} 条规则
                 </span>
               </div>
               
-              {/* 占位区域 */}
-              <div className={`rounded-lg border-2 border-dashed p-4 text-center ${
-                isDark 
-                  ? 'border-white/10 bg-white/5' 
-                  : 'border-gray-200 bg-gray-50'
-              }`}>
-                <p className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-400'}`}>
-                  点击上方"添加规则"按钮创建自定义正则规则
-                </p>
-              </div>
+              {/* 已保存规则列表 或 占位 */}
+              {savedRegexes.length > 0 ? (
+                <div className="space-y-2">
+                  {savedRegexes.map((regex) => (
+                    <div key={regex.id} className={`flex items-center justify-between p-2 rounded-lg ${
+                      isDark ? 'bg-white/5 border border-white/10' : 'bg-gray-50 border border-gray-200'
+                    }`}>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-[10px] font-medium truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                          {regex.name}
+                        </p>
+                        <p className={`text-[9px] font-mono truncate ${isDark ? 'text-[#05c4a5]' : 'text-[#059669]'}`}>
+                          {regex.pattern}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1 ml-2">
+                        <button 
+                          onClick={async () => {
+                            setIsGenerating(true)
+                            try {
+                              const response = await fetch(`${API_BASE}/regex`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ count: regex.previewCount, pattern: regex.pattern, name: regex.name }),
+                              })
+                              const result = await response.json()
+                              if (result.success) { setRegexData(result.data); setData([]); setColumns([]) }
+                              else { setError('正则表达式格式错误') }
+                            } catch { setError('生成失败') }
+                            finally { setIsGenerating(false) }
+                          }}
+                          className={`p-1 rounded ${isDark ? 'hover:bg-white/10 text-[#05c4a5]' : 'hover:bg-gray-200 text-[#059669]'}`}
+                          title="预览"
+                        >
+                          <Sparkles className="w-3 h-3" />
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setRegexName(regex.name)
+                            setRegexPattern(regex.pattern)
+                            setEditingRegexId(regex.id)
+                            setShowRegexModal(true)
+                          }}
+                          className={`p-1 rounded ${isDark ? 'hover:bg-white/10 text-[#94a3b8]' : 'hover:bg-gray-200 text-gray-500'}`}
+                          title="编辑"
+                        >
+                          <Edit className="w-3 h-3" />
+                        </button>
+                        <button 
+                          onClick={() => setSavedRegexes(prev => prev.filter(r => r.id !== regex.id))}
+                          className={`p-1 rounded ${isDark ? 'hover:bg-white/10 text-red-400' : 'hover:bg-gray-200 text-red-500'}`}
+                          title="删除"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className={`rounded-lg border-2 border-dashed p-4 text-center ${
+                  isDark 
+                    ? 'border-white/10 bg-white/5' 
+                    : 'border-gray-200 bg-gray-50'
+                }`}>
+                  <p className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-400'}`}>
+                    点击上方"添加规则"按钮创建自定义正则规则
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className={`mb-3 h-px ${isDark ? 'bg-gradient-to-r from-transparent via-[#ff6b4a]/50 to-transparent' : 'bg-gray-200'}`} />
@@ -616,12 +701,48 @@ ${values.join(',\n')};`
               </button>
               <button 
                 onClick={() => {
-                  if (regexPattern.trim()) {
+                  if (regexPattern.trim() && regexName.trim()) {
+                    const newRegex = {
+                      id: editingRegexId || Date.now().toString(),
+                      name: regexName,
+                      pattern: regexPattern,
+                      previewCount: regexPreviewCount
+                    }
+                    if (editingRegexId) {
+                      setSavedRegexes(prev => prev.map(r => r.id === editingRegexId ? newRegex : r))
+                    } else {
+                      setSavedRegexes(prev => [...prev, newRegex])
+                    }
+                    setShowRegexModal(false)
+                    toast({ description: editingRegexId ? '规则已更新' : '规则已保存', variant: 'success' })
+                  }
+                }} 
+                disabled={!regexPattern.trim() || !regexName.trim()}
+                className={`py-2 px-3 rounded-lg text-[11px] font-medium transition-colors ${
+                  isDark ? 'bg-white/10 text-[#94a3b8] hover:bg-white/20' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                仅保存
+              </button>
+              <button 
+                onClick={() => {
+                  if (regexPattern.trim() && regexName.trim()) {
+                    const newRegex = {
+                      id: editingRegexId || Date.now().toString(),
+                      name: regexName,
+                      pattern: regexPattern,
+                      previewCount: regexPreviewCount
+                    }
+                    if (editingRegexId) {
+                      setSavedRegexes(prev => prev.map(r => r.id === editingRegexId ? newRegex : r))
+                    } else {
+                      setSavedRegexes(prev => [...prev, newRegex])
+                    }
                     handleRegexGenerate()
                     setShowRegexModal(false)
                   }
                 }} 
-                disabled={isGenerating || !regexPattern.trim()}
+                disabled={isGenerating || !regexPattern.trim() || !regexName.trim()}
                 className={`py-2 px-4 rounded-lg text-[11px] font-medium transition-all flex items-center gap-1.5 ${
                   isDark 
                     ? 'bg-gradient-to-r from-[#5a5eff] to-[#768dff] hover:shadow-lg hover:shadow-[#5a5eff]/25' 
@@ -629,7 +750,7 @@ ${values.join(',\n')};`
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <Wand2 className="w-3 h-3" />
-                生成数据
+                保存并生成
               </button>
             </div>
           </div>
