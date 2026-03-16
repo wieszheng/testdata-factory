@@ -361,8 +361,8 @@ function App() {
             <div className="divider-glow mb-4" />
 
             {/* 数量和生成按钮 */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-2">
-              <div className="flex-1 w-full sm:max-w-[100px]">
+            <div className="flex items-center gap-2">
+              <div className="w-[80px]">
                 <label className="block text-xs font-medium text-[#94a3b8] mb-1">数量</label>
                 <input
                   type="number"
@@ -377,7 +377,7 @@ function App() {
               <button 
                 onClick={handleGenerate}
                 disabled={isGenerating || selectedTypes.length === 0}
-                className="btn-primary w-full sm:w-auto flex items-center justify-center gap-1.5 disabled:opacity-50 py-1.5 px-3 text-xs"
+                className="btn-primary flex items-center justify-center gap-1.5 disabled:opacity-50 mt-4"
               >
                 {isGenerating ? (
                   <>
