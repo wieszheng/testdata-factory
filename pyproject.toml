@@ -1,0 +1,27 @@
+[project]
+name = "testdata-factory"
+version = "0.1.0"
+description = "智能测试数据生成器 - 测试同学的效率工具"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "typer>=0.9.0",
+    "faker>=22.0.0",
+    "rich>=13.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+]
+
+[project.scripts]
+testgen = "testdata_factory.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/testdata_factory"]
