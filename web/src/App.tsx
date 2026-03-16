@@ -360,6 +360,10 @@ ${values.join(',\n')};`
               {/* 预览数量调节 */}
               <div className={`flex items-center gap-2 mb-2 text-[9px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>
                 <span className="flex items-center gap-1">
+                  <FileText className="w-3 h-3" />
+                  已保存 {savedRegexes.length} 条规则
+                </span>
+                <span className="ml-auto flex items-center gap-1">
                   <Sparkles className="w-3 h-3" />
                   预览数量
                 </span>
@@ -372,10 +376,6 @@ ${values.join(',\n')};`
                   className={`w-12 text-center text-[10px] py-0.5 rounded ${isDark ? 'input-glass' : 'border border-gray-300 bg-white'}`}
                 />
                 <span>条</span>
-                <span className="ml-auto flex items-center gap-1">
-                  <FileText className="w-3 h-3" />
-                  已保存 {savedRegexes.length} 条规则
-                </span>
               </div>
               
               {/* 已保存规则列表 或 占位 */}
