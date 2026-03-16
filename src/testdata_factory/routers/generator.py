@@ -1,8 +1,9 @@
 """API 路由"""
 
+import sys
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List, Dict, Any
 
 from ..generators.phone import generate_phone
 from ..generators.email import generate_email
@@ -84,7 +85,7 @@ class GenerateRequest(BaseModel):
         description="要生成的数据类型"
     )
     # 新增：自定义正则规则
-    custom_rules: Optional[list[dict]] = Field(
+    custom_rules: Optional[List[Dict[str, Any]]] = Field(
         default=None,
         description="自定义正则规则列表，每项包含 name 和 pattern"
     )

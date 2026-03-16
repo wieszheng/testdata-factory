@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { ToastProvider, useToast } from './components/ui/toast-provider'
 
-const API_BASE = 'http://localhost:8001/api'
+const API_BASE = 'http://localhost:8003/api'
 
 interface DataType {
   key: string
