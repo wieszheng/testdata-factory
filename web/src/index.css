@@ -95,7 +95,7 @@
     min-height: 100vh;
   }
 
-  /* 自定义滚动条 */
+  /* 自定义滚动条 - 深色模式 */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -112,6 +112,46 @@
 
   ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(180deg, #ff8f70 0%, #768dff 100%);
+  }
+
+  /* 亮色模式滚动条 */
+  [data-theme="light"] ::-webkit-scrollbar-track {
+    background: #f3f4f6;
+  }
+
+  [data-theme="light"] ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #ff6b4a 0%, #4a3df0 100%);
+  }
+
+  [data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #ff8f7a 0%, #5a5eff 100%);
+  }
+
+  /* 选择框下拉箭头 - 移除默认样式 */
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.5rem;
+  }
+
+  /* 亮色模式选择框 */
+  [data-theme="light"] select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
+
+  /* 选项样式 - 需要配合 JS 或手动添加 */
+  option {
+    background: var(--color-surface);
+    color: var(--color-foreground);
+  }
+
+  [data-theme="light"] option {
+    background: white;
+    color: #1f2937;
   }
 }
 
