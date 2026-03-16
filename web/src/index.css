@@ -243,6 +243,25 @@
     box-shadow: 0 0 12px rgba(255, 107, 74, 0.15);
   }
 
+  /* 亮色模式按钮样式 - 通过 data-theme 属性 */
+  [data-theme="light"] .type-btn {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+    color: #4b5563;
+  }
+
+  [data-theme="light"] .type-btn:hover {
+    background: #e5e7eb;
+    color: #1f2937;
+  }
+
+  [data-theme="light"] .type-btn.active {
+    background: linear-gradient(135deg, #ff6b4a 0%, #ff8f7a 100%);
+    border-color: #ff6b4a;
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 107, 74, 0.3);
+  }
+
   /* 表格 */
   .table-glass {
     width: 100%;

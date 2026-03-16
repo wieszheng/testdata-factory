@@ -263,7 +263,7 @@ ${values.join(',\n')};`
   }
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-[#0f1419] text-white' : 'bg-gray-50 text-gray-900'}`}>
+    <div data-theme={isDark ? 'dark' : 'light'} className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-[#0f1419] text-white' : 'bg-gray-50 text-gray-900'}`}>
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className={`absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl ${isDark ? 'bg-[#ff6b4a] opacity-10' : 'bg-[#ff6b4a] opacity-20'}`} />
         <div className={`absolute bottom-0 right-1/4 w-96 h-96 rounded-full blur-3xl ${isDark ? 'bg-[#5a5eff] opacity-10' : 'bg-blue-400 opacity-20'}`} />
@@ -309,13 +309,7 @@ ${values.join(',\n')};`
               <div className="flex flex-wrap gap-1">
                 {DATA_TYPES.map(type => (
                   <button key={type.key} onClick={() => toggleType(type.key)}
-                    className={`type-btn text-xs ${
-                      selectedTypes.includes(type.key) 
-                        ? 'active' 
-                        : isDark 
-                          ? '' 
-                          : 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-gray-200'
-                    }`}>
+                    className={`type-btn text-xs ${selectedTypes.includes(type.key) ? 'active' : ''}`}>
                     {type.icon}<span className="ml-0.5">{type.label}</span>
                   </button>
                 ))}
