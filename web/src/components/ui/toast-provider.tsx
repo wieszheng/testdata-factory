@@ -45,12 +45,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ toasts, toast, dismiss }}>
       {children}
       {/* Toast 容器 */}
-      <div className="fixed top-3 right-3 z-[100] flex flex-col gap-1.5 max-w-xs">
+      <div className="fixed top-14 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-1.5 max-w-xs">
         {toasts.map((t) => (
           <Toast
             key={t.id}
             variant={t.variant}
-            className="animate-in slide-in-from-right-full"
+            className="animate-in slide-in-from-top"
           >
             <div className="flex items-center gap-2">
               <ToastIcon variant={t.variant} />

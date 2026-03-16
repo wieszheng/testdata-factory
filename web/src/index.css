@@ -380,6 +380,17 @@
     }
   }
   
+  @keyframes slideInFromTop {
+    from {
+      opacity: 0;
+      transform: translateY(-100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
   .animate-in {
     animation-duration: 300ms;
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
@@ -388,5 +399,9 @@
   
   .slide-in-from-right-full {
     animation-name: slideInFromRight;
+  }
+  
+  .slide-in-from-top {
+    animation-name: slideInFromTop;
   }
 }
