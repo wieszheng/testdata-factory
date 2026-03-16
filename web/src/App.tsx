@@ -305,11 +305,19 @@ ${values.join(',\n')};`
           <div className={`p-3 sm:p-4 mb-3 rounded-xl ${isDark ? 'glass-card animate-glow' : 'bg-white shadow-lg border border-gray-200'}`}>
             {/* 数据类型选择 */}
             <div className="mb-3">
-              <label className="block text-[10px] font-medium text-[#94a3b8] mb-1.5">选择数据类型</label>
+              <label className={`block text-[10px] font-medium mb-1.5 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>选择数据类型</label>
               <div className="flex flex-wrap gap-1">
                 {DATA_TYPES.map(type => (
                   <button key={type.key} onClick={() => toggleType(type.key)}
-                    className={`type-btn text-[10px] py-1 px-2 ${selectedTypes.includes(type.key) ? 'active' : ''}`}>
+                    className={`text-[10px] py-1 px-2 rounded transition-colors ${
+                      selectedTypes.includes(type.key) 
+                        ? isDark 
+                          ? 'bg-gradient-to-r from-[#ff6b4a]/20 to-[#5a5eff]/20 border border-[#ff6b4a]/40 text-white' 
+                          : 'bg-[#ff6b4a]/10 border border-[#ff6b4a]/40 text-[#ff6b4a]'
+                        : isDark
+                          ? 'bg-white/5 border border-white/10 text-[#94a3b8] hover:bg-white/10'
+                          : 'bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200'
+                    }`}>
                     {type.icon}<span className="ml-0.5">{type.label}</span>
                   </button>
                 ))}
@@ -318,19 +326,19 @@ ${values.join(',\n')};`
 
             {/* 正则规则 */}
             <div className="mb-3">
-              <button onClick={() => setShowRegex(!showRegex)} className="flex items-center gap-1.5 text-[10px] text-[#5a5eff] hover:text-[#768dff]">
+              <button onClick={() => setShowRegex(!showRegex)} className={`flex items-center gap-1.5 text-[10px] ${isDark ? 'text-[#5a5eff] hover:text-[#768dff]' : 'text-[#4a3df0] hover:text-[#5a5eff]'}`}>
                 <Code className="w-3 h-3" />自定义正则
                 <ChevronDown className={`w-3 h-3 transition-transform ${showRegex ? 'rotate-180' : ''}`} />
               </button>
               
               {showRegex && (
-                <div className="mt-2 p-2 rounded-lg bg-white/5 border border-white/10 grid gap-2 sm:grid-cols-2">
-                  <input type="text" value={regexName} onChange={(e) => setRegexName(e.target.value)} placeholder="字段名" className="input-glass text-[10px] py-1" />
-                  <select value={regexPattern} onChange={(e) => { setRegexPattern(e.target.value); const t = templates.find(t => t.pattern === e.target.value); if (t) setRegexName(t.name) }} className="input-glass text-[10px] py-1">
+                <div className={`mt-2 p-2 rounded-lg grid gap-2 sm:grid-cols-2 ${isDark ? 'bg-white/5 border border-white/10' : 'bg-gray-100 border border-gray-200'}`}>
+                  <input type="text" value={regexName} onChange={(e) => setRegexName(e.target.value)} placeholder="字段名" className={`text-[10px] py-1 px-2 rounded ${isDark ? 'input-glass' : 'border border-gray-300 bg-white'}`} />
+                  <select value={regexPattern} onChange={(e) => { setRegexPattern(e.target.value); const t = templates.find(t => t.pattern === e.target.value); if (t) setRegexName(t.name) }} className={`text-[10px] py-1 px-2 rounded ${isDark ? 'input-glass' : 'border border-gray-300 bg-white'}`}>
                     <option value="">选择模板...</option>
                     {templates.map(t => <option key={t.name} value={t.pattern}>{t.name}</option>)}
                   </select>
-                  <input type="text" value={regexPattern} onChange={(e) => setRegexPattern(e.target.value)} placeholder="正则: ORD\d{14}" className="input-glass text-[10px] font-mono sm:col-span-2" />
+                  <input type="text" value={regexPattern} onChange={(e) => setRegexPattern(e.target.value)} placeholder="正则: ORD\d{14}" className={`text-[10px] font-mono px-2 py-1 rounded sm:col-span-2 ${isDark ? 'input-glass' : 'border border-gray-300 bg-white'}`} />
                   <button onClick={handleRegexGenerate} disabled={isGenerating || !regexPattern.trim()} className="px-2 py-1 bg-gradient-to-r from-[#5a5eff] to-[#768dff] text-white rounded text-[10px] font-medium disabled:opacity-50 sm:col-span-2">
                     <Wand2 className="w-3 h-3 inline mr-1" />生成
                   </button>
@@ -338,15 +346,15 @@ ${values.join(',\n')};`
               )}
             </div>
 
-            <div className="divider-glow mb-3" />
+            <div className={`mb-3 h-px ${isDark ? 'bg-gradient-to-r from-transparent via-[#ff6b4a]/50 to-transparent' : 'bg-gray-200'}`} />
 
             {/* 数量和生成按钮 */}
             <div className="flex items-end gap-2">
               <div className="w-[70px]">
-                <label className="block text-[10px] text-[#94a3b8] mb-1">数量</label>
-                <input type="number" value={count} onChange={(e) => setCount(Math.max(1, Math.min(1000, parseInt(e.target.value) || 1)))} min={1} max={1000} className="input-glass text-center text-xs font-semibold py-1 px-1" />
+                <label className={`block text-[10px] mb-1 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>数量</label>
+                <input type="number" value={count} onChange={(e) => setCount(Math.max(1, Math.min(1000, parseInt(e.target.value) || 1)))} min={1} max={1000} className={`text-center text-xs font-semibold py-1 px-1 rounded ${isDark ? 'input-glass' : 'border border-gray-300 bg-white'}`} />
               </div>
-              <button onClick={handleGenerate} disabled={isGenerating || selectedTypes.length === 0} className="btn-primary flex items-center justify-center gap-1 disabled:opacity-50 h-[28px] px-3 text-[10px]">
+              <button onClick={handleGenerate} disabled={isGenerating || selectedTypes.length === 0} className={`flex items-center justify-center gap-1 disabled:opacity-50 h-[28px] px-3 text-[10px] rounded font-medium ${isDark ? 'btn-primary' : 'bg-gradient-to-r from-[#ff6b4a] to-[#ff8f7a] text-white shadow hover:shadow-md transition-shadow'}`}>
                 {isGenerating ? <><div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />生成中</> : <><Sparkles className="w-3 h-3" />生成</>}
               </button>
             </div>
@@ -355,12 +363,12 @@ ${values.join(',\n')};`
           </div>
 
           {/* 数据库逆向面板 */}
-          <div className="glass-card p-3 sm:p-4 mb-3">
+          <div className={`p-3 sm:p-4 mb-3 rounded-xl ${isDark ? 'glass-card' : 'bg-white shadow border border-gray-200'}`}>
             <button onClick={() => setShowDbPanel(!showDbPanel)} className="w-full flex items-center justify-between text-[10px] font-medium text-[#05c4a5] hover:text-[#00d4b5]">
               <div className="flex items-center gap-2">
                 <Server className="w-3.5 h-3.5" />
                 <span>数据库逆向解析</span>
-                <span className="text-[#94a3b8] font-normal">从数据库表结构自动生成数据</span>
+                <span className={isDark ? 'text-[#94a3b8] font-normal' : 'text-gray-500 font-normal'}>从数据库表结构自动生成数据</span>
               </div>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showDbPanel ? 'rotate-180' : ''}`} />
             </button>
@@ -371,7 +379,13 @@ ${values.join(',\n')};`
                 <div className="flex gap-1">
                   {['mysql', 'postgresql', 'sqlite'].map(type => (
                     <button key={type} onClick={() => setDbConfig(prev => ({ ...prev, db_type: type, port: type === 'mysql' ? 3306 : type === 'postgresql' ? 5432 : 0 }))}
-                      className={`flex-1 py-1 text-[10px] rounded transition-colors ${dbConfig.db_type === type ? 'bg-[#05c4a5]/20 text-[#05c4a5] border border-[#05c4a5]/30' : 'bg-white/5 text-[#94a3b8] hover:bg-white/10'}`}>
+                      className={`flex-1 py-1 text-[10px] rounded transition-colors ${
+                        dbConfig.db_type === type 
+                          ? 'bg-[#05c4a5]/20 text-[#05c4a5] border border-[#05c4a5]/30' 
+                          : isDark 
+                            ? 'bg-white/5 text-[#94a3b8] hover:bg-white/10 border border-transparent' 
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-transparent'
+                      }`}>
                       {type === 'mysql' ? 'MySQL' : type === 'postgresql' ? 'PostgreSQL' : 'SQLite'}
                     </button>
                   ))}
@@ -380,19 +394,19 @@ ${values.join(',\n')};`
                 {/* 连接信息 */}
                 <div className="grid grid-cols-3 gap-1.5">
                   <div>
-                    <label className="block text-[9px] text-[#94a3b8] mb-0.5">主机</label>
+                    <label className={`block text-[9px] mb-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>主机</label>
                     <input type="text" value={dbConfig.host} onChange={(e) => setDbConfig(prev => ({ ...prev, host: e.target.value }))} 
-                      placeholder="localhost" className="input-glass text-[10px] py-1 w-full" />
+                      placeholder="localhost" className={`text-[10px] py-1 px-2 w-full rounded ${isDark ? 'input-glass' : 'border border-gray-300 bg-gray-50'}`} />
                   </div>
                   <div>
-                    <label className="block text-[9px] text-[#94a3b8] mb-0.5">端口</label>
+                    <label className={`block text-[9px] mb-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>端口</label>
                     <input type="number" value={dbConfig.port} onChange={(e) => setDbConfig(prev => ({ ...prev, port: parseInt(e.target.value) || 3306 }))}
-                      placeholder="3306" className="input-glass text-[10px] py-1 w-full" />
+                      placeholder="3306" className={`text-[10px] py-1 px-2 w-full rounded ${isDark ? 'input-glass' : 'border border-gray-300 bg-gray-50'}`} />
                   </div>
                   <div>
-                    <label className="block text-[9px] text-[#94a3b8] mb-0.5">{dbConfig.db_type === 'sqlite' ? '文件路径' : '数据库'}</label>
+                    <label className={`block text-[9px] mb-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>{dbConfig.db_type === 'sqlite' ? '文件路径' : '数据库'}</label>
                     <input type="text" value={dbConfig.database} onChange={(e) => setDbConfig(prev => ({ ...prev, database: e.target.value }))}
-                      placeholder={dbConfig.db_type === 'sqlite' ? '/path/to/db.sqlite' : 'database_name'} className="input-glass text-[10px] py-1 w-full" />
+                      placeholder={dbConfig.db_type === 'sqlite' ? '/path/to/db.sqlite' : 'database_name'} className={`text-[10px] py-1 px-2 w-full rounded ${isDark ? 'input-glass' : 'border border-gray-300 bg-gray-50'}`} />
                   </div>
                 </div>
                 
@@ -400,14 +414,14 @@ ${values.join(',\n')};`
                 {dbConfig.db_type !== 'sqlite' && (
                   <div className="grid grid-cols-2 gap-1.5">
                     <div>
-                      <label className="block text-[9px] text-[#94a3b8] mb-0.5">用户名</label>
+                      <label className={`block text-[9px] mb-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>用户名</label>
                       <input type="text" value={dbConfig.username} onChange={(e) => setDbConfig(prev => ({ ...prev, username: e.target.value }))}
-                        placeholder="root" className="input-glass text-[10px] py-1 w-full" />
+                        placeholder="root" className={`text-[10px] py-1 px-2 w-full rounded ${isDark ? 'input-glass' : 'border border-gray-300 bg-gray-50'}`} />
                     </div>
                     <div>
-                      <label className="block text-[9px] text-[#94a3b8] mb-0.5">密码</label>
+                      <label className={`block text-[9px] mb-0.5 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>密码</label>
                       <input type="password" value={dbConfig.password} onChange={(e) => setDbConfig(prev => ({ ...prev, password: e.target.value }))}
-                        placeholder="••••••••" className="input-glass text-[10px] py-1 w-full" />
+                        placeholder="••••••••" className={`text-[10px] py-1 px-2 w-full rounded ${isDark ? 'input-glass' : 'border border-gray-300 bg-gray-50'}`} />
                     </div>
                   </div>
                 )}
@@ -453,41 +467,41 @@ ${values.join(',\n')};`
 
           {/* 结果展示 */}
           {(data.length > 0 || regexData.length > 0) && (
-            <div className="glass-card p-3 sm:p-4 mb-3">
-              <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-white/10">
+            <div className={`p-3 sm:p-4 mb-3 rounded-xl ${isDark ? 'glass-card' : 'bg-white shadow border border-gray-200'}`}>
+              <div className={`flex items-center justify-between gap-2 mb-3 pb-2 border-b ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
                 <div>
-                  <h3 className="font-bold text-white text-xs">结果</h3>
-                  <p className="text-[10px] text-[#94a3b8]">{data.length > 0 ? `${data.length} 条 · ${columns.length} 字段` : `${regexData.length} 条`}</p>
+                  <h3 className={`font-bold text-xs ${isDark ? 'text-white' : 'text-gray-900'}`}>结果</h3>
+                  <p className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>{data.length > 0 ? `${data.length} 条 · ${columns.length} 字段` : `${regexData.length} 条`}</p>
                 </div>
                 <div className="flex items-center gap-1">
-                  <div className="flex bg-white/5 rounded p-0.5 mr-1">
-                    <button onClick={() => setViewMode('table')} className={`p-1 rounded transition-colors ${viewMode === 'table' ? 'bg-[#ff6b4a]/20 text-[#ff6b4a]' : 'text-[#94a3b8] hover:text-white'}`}><Table className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => setViewMode('json')} className={`p-1 rounded transition-colors ${viewMode === 'json' ? 'bg-[#ff6b4a]/20 text-[#ff6b4a]' : 'text-[#94a3b8] hover:text-white'}`}><FileJson className="w-3.5 h-3.5" /></button>
+                  <div className={`flex rounded p-0.5 mr-1 ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
+                    <button onClick={() => setViewMode('table')} className={`p-1 rounded transition-colors ${viewMode === 'table' ? 'bg-[#ff6b4a]/20 text-[#ff6b4a]' : isDark ? 'text-[#94a3b8] hover:text-white' : 'text-gray-400 hover:text-gray-600'}`}><Table className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => setViewMode('json')} className={`p-1 rounded transition-colors ${viewMode === 'json' ? 'bg-[#ff6b4a]/20 text-[#ff6b4a]' : isDark ? 'text-[#94a3b8] hover:text-white' : 'text-gray-400 hover:text-gray-600'}`}><FileJson className="w-3.5 h-3.5" /></button>
                   </div>
-                  <button onClick={handleCopy} className="btn-secondary py-1 px-1.5">{copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}</button>
-                  <button onClick={handleExportCSV} className="btn-secondary py-1 px-1.5" title="导出CSV"><Download className="w-3 h-3" /></button>
-                  <button onClick={handleExportJSON} className="btn-secondary py-1 px-1.5" title="导出JSON"><FileJson className="w-3 h-3" /></button>
-                  <button onClick={handleExportSQL} className="btn-secondary py-1 px-1.5" title="导出SQL"><FileCode className="w-3 h-3" /></button>
+                  <button onClick={handleCopy} className={`py-1 px-1.5 rounded transition-colors ${isDark ? 'btn-secondary' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`}>{copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}</button>
+                  <button onClick={handleExportCSV} className={`py-1 px-1.5 rounded transition-colors ${isDark ? 'btn-secondary' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`} title="导出CSV"><Download className="w-3 h-3" /></button>
+                  <button onClick={handleExportJSON} className={`py-1 px-1.5 rounded transition-colors ${isDark ? 'btn-secondary' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`} title="导出JSON"><FileJson className="w-3 h-3" /></button>
+                  <button onClick={handleExportSQL} className={`py-1 px-1.5 rounded transition-colors ${isDark ? 'btn-secondary' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`} title="导出SQL"><FileCode className="w-3 h-3" /></button>
                 </div>
               </div>
 
               {viewMode === 'table' ? (
                 <div className="overflow-x-auto overflow-y-auto max-h-[350px]">
                   {data.length > 0 ? (
-                    <table className="table-glass min-w-full">
-                      <thead className="sticky top-0"><tr>{columns.map(col => <th key={col} className="text-[10px] py-1.5 px-2 whitespace-nowrap">{TYPE_LABELS[col] || col}</th>)}</tr></thead>
-                      <tbody>{data.map((row, i) => <tr key={i}>{columns.map(col => <td key={col} className="text-[10px] py-1.5 px-2 whitespace-nowrap">{row[col] || '-'}</td>)}</tr>)}</tbody>
+                    <table className={`min-w-full ${isDark ? 'table-glass' : 'text-gray-900'}`}>
+                      <thead className={`sticky top-0 ${isDark ? '' : 'bg-gray-100'}`}><tr>{columns.map(col => <th key={col} className={`text-[10px] py-1.5 px-2 whitespace-nowrap font-medium ${isDark ? '' : 'text-left'}`}>{TYPE_LABELS[col] || col}</th>)}</tr></thead>
+                      <tbody>{data.map((row, i) => <tr key={i} className={isDark ? '' : 'border-b border-gray-100'}>{columns.map(col => <td key={col} className={`text-[10px] py-1.5 px-2 whitespace-nowrap ${isDark ? '' : 'text-gray-700'}`}>{row[col] || '-'}</td>)}</tr>)}</tbody>
                     </table>
                   ) : (
-                    <table className="table-glass min-w-full">
-                      <thead className="sticky top-0"><tr><th className="text-[10px] py-1.5 px-2">{regexName}</th></tr></thead>
-                      <tbody>{regexData.map((v, i) => <tr key={i}><td className="text-[10px] py-1.5 px-2">{v}</td></tr>)}</tbody>
+                    <table className={`min-w-full ${isDark ? 'table-glass' : 'text-gray-900'}`}>
+                      <thead className={`sticky top-0 ${isDark ? '' : 'bg-gray-100'}`}><tr><th className={`text-[10px] py-1.5 px-2 font-medium ${isDark ? '' : 'text-left'}`}>{regexName}</th></tr></thead>
+                      <tbody>{regexData.map((v, i) => <tr key={i} className={isDark ? '' : 'border-b border-gray-100'}><td className={`text-[10px] py-1.5 px-2 ${isDark ? '' : 'text-gray-700'}`}>{v}</td></tr>)}</tbody>
                     </table>
                   )}
                 </div>
               ) : (
-                <div className="overflow-auto max-h-[350px] bg-black/20 rounded-lg p-2">
-                  <pre className="text-[10px] text-[#94a3b8] font-mono whitespace-pre-wrap break-all">
+                <div className={`overflow-auto max-h-[350px] rounded-lg p-2 ${isDark ? 'bg-black/20' : 'bg-gray-100'}`}>
+                  <pre className={`text-[10px] font-mono whitespace-pre-wrap break-all ${isDark ? 'text-[#94a3b8]' : 'text-gray-700'}`}>
                     {data.length > 0 ? JSON.stringify(data.map(row => { const item: Record<string, string> = {}; columns.forEach(col => { item[TYPE_LABELS[col] || col] = row[col] || '' }); return item }), null, 2) : JSON.stringify(regexData.map(v => ({ [regexName]: v })), null, 2)}
                   </pre>
                 </div>
