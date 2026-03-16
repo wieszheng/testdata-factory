@@ -277,44 +277,79 @@ function App() {
               <div className="flex items-center gap-2">
                 <Server className="w-3.5 h-3.5" />
                 <span>数据库逆向解析</span>
-                <span className="text-[#94a3b8]">从数据库表结构自动生成数据</span>
+                <span className="text-[#94a3b8] font-normal">从数据库表结构自动生成数据</span>
               </div>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showDbPanel ? 'rotate-180' : ''}`} />
             </button>
             
             {showDbPanel && (
-              <div className="mt-3 space-y-3">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <select value={dbConfig.db_type} onChange={(e) => setDbConfig(prev => ({ ...prev, db_type: e.target.value, port: e.target.value === 'mysql' ? 3306 : e.target.value === 'postgresql' ? 5432 : 0 }))} className="input-glass text-[10px] py-1">
-                    <option value="mysql">MySQL</option>
-                    <option value="postgresql">PostgreSQL</option>
-                    <option value="sqlite">SQLite</option>
-                  </select>
-                  <input type="text" value={dbConfig.host} onChange={(e) => setDbConfig(prev => ({ ...prev, host: e.target.value }))} placeholder="主机" className="input-glass text-[10px] py-1" />
-                  <input type="number" value={dbConfig.port} onChange={(e) => setDbConfig(prev => ({ ...prev, port: parseInt(e.target.value) || 3306 }))} placeholder="端口" className="input-glass text-[10px] py-1" />
-                  <input type="text" value={dbConfig.database} onChange={(e) => setDbConfig(prev => ({ ...prev, database: e.target.value }))} placeholder="数据库/文件路径" className="input-glass text-[10px] py-1" />
+              <div className="mt-3 space-y-2">
+                {/* 数据库类型选择 */}
+                <div className="flex gap-1">
+                  {['mysql', 'postgresql', 'sqlite'].map(type => (
+                    <button key={type} onClick={() => setDbConfig(prev => ({ ...prev, db_type: type, port: type === 'mysql' ? 3306 : type === 'postgresql' ? 5432 : 0 }))}
+                      className={`flex-1 py-1 text-[10px] rounded transition-colors ${dbConfig.db_type === type ? 'bg-[#05c4a5]/20 text-[#05c4a5] border border-[#05c4a5]/30' : 'bg-white/5 text-[#94a3b8] hover:bg-white/10'}`}>
+                      {type === 'mysql' ? 'MySQL' : type === 'postgresql' ? 'PostgreSQL' : 'SQLite'}
+                    </button>
+                  ))}
                 </div>
+                
+                {/* 连接信息 */}
+                <div className="grid grid-cols-3 gap-1.5">
+                  <div>
+                    <label className="block text-[9px] text-[#94a3b8] mb-0.5">主机</label>
+                    <input type="text" value={dbConfig.host} onChange={(e) => setDbConfig(prev => ({ ...prev, host: e.target.value }))} 
+                      placeholder="localhost" className="input-glass text-[10px] py-1 w-full" />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] text-[#94a3b8] mb-0.5">端口</label>
+                    <input type="number" value={dbConfig.port} onChange={(e) => setDbConfig(prev => ({ ...prev, port: parseInt(e.target.value) || 3306 }))}
+                      placeholder="3306" className="input-glass text-[10px] py-1 w-full" />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] text-[#94a3b8] mb-0.5">{dbConfig.db_type === 'sqlite' ? '文件路径' : '数据库'}</label>
+                    <input type="text" value={dbConfig.database} onChange={(e) => setDbConfig(prev => ({ ...prev, database: e.target.value }))}
+                      placeholder={dbConfig.db_type === 'sqlite' ? '/path/to/db.sqlite' : 'database_name'} className="input-glass text-[10px] py-1 w-full" />
+                  </div>
+                </div>
+                
+                {/* 用户名密码（非 SQLite） */}
                 {dbConfig.db_type !== 'sqlite' && (
-                  <div className="grid grid-cols-2 gap-2">
-                    <input type="text" value={dbConfig.username} onChange={(e) => setDbConfig(prev => ({ ...prev, username: e.target.value }))} placeholder="用户名" className="input-glass text-[10px] py-1" />
-                    <input type="password" value={dbConfig.password} onChange={(e) => setDbConfig(prev => ({ ...prev, password: e.target.value }))} placeholder="密码" className="input-glass text-[10px] py-1" />
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <div>
+                      <label className="block text-[9px] text-[#94a3b8] mb-0.5">用户名</label>
+                      <input type="text" value={dbConfig.username} onChange={(e) => setDbConfig(prev => ({ ...prev, username: e.target.value }))}
+                        placeholder="root" className="input-glass text-[10px] py-1 w-full" />
+                    </div>
+                    <div>
+                      <label className="block text-[9px] text-[#94a3b8] mb-0.5">密码</label>
+                      <input type="password" value={dbConfig.password} onChange={(e) => setDbConfig(prev => ({ ...prev, password: e.target.value }))}
+                        placeholder="••••••••" className="input-glass text-[10px] py-1 w-full" />
+                    </div>
                   </div>
                 )}
                 
-                <button onClick={handleDbConnect} disabled={dbConnecting || !dbConfig.database} className="w-full py-1.5 bg-gradient-to-r from-[#05c4a5] to-[#009e87] text-white rounded text-[10px] font-medium disabled:opacity-50 flex items-center justify-center gap-1">
+                {/* 连接按钮 */}
+                <button onClick={handleDbConnect} disabled={dbConnecting || !dbConfig.database}
+                  className="w-full py-1.5 bg-gradient-to-r from-[#05c4a5] to-[#009e87] text-white rounded text-[10px] font-medium disabled:opacity-50 flex items-center justify-center gap-1">
                   {dbConnecting ? <><Loader2 className="w-3 h-3 animate-spin" />连接中...</> : <><Server className="w-3 h-3" />连接数据库</>}
                 </button>
                 
-                {dbError && <p className="text-[10px] text-red-400">{dbError}</p>}
+                {dbError && <p className="text-[10px] text-red-400 text-center">{dbError}</p>}
                 
+                {/* 表列表 */}
                 {dbTables.length > 0 && (
-                  <div className="max-h-[150px] overflow-y-auto border border-white/10 rounded">
-                    {dbTables.map(table => (
-                      <button key={table} onClick={() => handleDbGenerate(table)} className="w-full px-2 py-1.5 text-left text-[10px] text-[#94a3b8] hover:bg-white/5 hover:text-white flex items-center justify-between">
-                        <span>{table}</span>
-                        <ChevronRight className="w-3 h-3" />
-                      </button>
-                    ))}
+                  <div className="border border-white/10 rounded overflow-hidden">
+                    <div className="px-2 py-1 bg-white/5 text-[9px] text-[#94a3b8]">发现 {dbTables.length} 个表</div>
+                    <div className="max-h-[120px] overflow-y-auto">
+                      {dbTables.map(table => (
+                        <button key={table} onClick={() => handleDbGenerate(table)}
+                          className="w-full px-2 py-1.5 text-left text-[10px] text-[#94a3b8] hover:bg-[#05c4a5]/10 hover:text-[#05c4a5] flex items-center justify-between border-t border-white/5">
+                          <span className="truncate">{table}</span>
+                          <ChevronRight className="w-3 h-3 flex-shrink-0" />
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
