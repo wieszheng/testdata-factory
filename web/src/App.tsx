@@ -283,8 +283,8 @@ function App() {
           </div>
 
           {(data.length > 0 || regexData.length > 0) && (
-            <div className="glass-card overflow-hidden mb-3">
-              <div className="flex items-center justify-between gap-2 p-2 border-b border-white/10">
+            <div className="glass-card p-3 sm:p-4 mb-3">
+              <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-white/10">
                 <div>
                   <h3 className="font-bold text-white text-xs">结果</h3>
                   <p className="text-[10px] text-[#94a3b8]">
@@ -304,20 +304,20 @@ function App() {
                 </div>
               </div>
 
-              <div className="overflow-x-auto max-h-[350px] overflow-y-auto">
+              <div className="overflow-x-auto overflow-y-auto max-h-[350px]">
                 {data.length > 0 ? (
-                  <table className="table-glass">
+                  <table className="table-glass min-w-full">
                     <thead className="sticky top-0">
-                      <tr>{columns.map(col => <th key={col} className="text-[10px] py-1.5 px-2">{TYPE_LABELS[col] || col}</th>)}</tr>
+                      <tr>{columns.map(col => <th key={col} className="text-[10px] py-1.5 px-2 whitespace-nowrap">{TYPE_LABELS[col] || col}</th>)}</tr>
                     </thead>
                     <tbody>
                       {data.map((row, i) => (
-                        <tr key={i}>{columns.map(col => <td key={col} className="text-[10px] py-1.5 px-2">{row[col] || '-'}</td>)}</tr>
+                        <tr key={i}>{columns.map(col => <td key={col} className="text-[10px] py-1.5 px-2 whitespace-nowrap">{row[col] || '-'}</td>)}</tr>
                       ))}
                     </tbody>
                   </table>
                 ) : (
-                  <table className="table-glass">
+                  <table className="table-glass min-w-full">
                     <thead className="sticky top-0"><tr><th className="text-[10px] py-1.5 px-2">{regexName}</th></tr></thead>
                     <tbody>
                       {regexData.map((v, i) => <tr key={i}><td className="text-[10px] py-1.5 px-2">{v}</td></tr>)}
