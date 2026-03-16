@@ -3,7 +3,7 @@ import {
   Sparkles, Phone, Mail, CreditCard, Download, Copy, Check,
   Settings, Database, Wand2, ChevronDown, Globe, MapPin,
   Calendar, User, Link, AlertCircle, Code, Building, Briefcase,
-  DollarSign, Palette, Fingerprint, Key, FileText
+  DollarSign, Palette, Fingerprint, Key, FileText, Table, FileJson
 } from 'lucide-react'
 
 const API_BASE = 'http://localhost:8000/api'
@@ -59,6 +59,7 @@ function App() {
   const [regexName, setRegexName] = useState('自定义字段')
   const [templates, setTemplates] = useState<RegexTemplate[]>([])
   const [regexData, setRegexData] = useState<string[]>([])
+  const [viewMode, setViewMode] = useState<'table' | 'json'>('table')
 
   useEffect(() => {
     fetch(`${API_BASE}/templates`)
@@ -291,7 +292,18 @@ function App() {
                     {data.length > 0 ? `${data.length} 条 · ${columns.length} 字段` : `${regexData.length} 条`}
                   </p>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex items-center gap-1">
+                  {/* 视图切换 */}
+                  <div className="flex bg-white/5 rounded p-0.5 mr-1">
+                    <button onClick={() => setViewMode('table')}
+                      className={`p-1 rounded transition-colors ${viewMode === 'table' ? 'bg-[#ff6b4a]/20 text-[#ff6b4a]' : 'text-[#94a3b8] hover:text-white'}`}>
+                      <Table className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={() => setViewMode('json')}
+                      className={`p-1 rounded transition-colors ${viewMode === 'json' ? 'bg-[#ff6b4a]/20 text-[#ff6b4a]' : 'text-[#94a3b8] hover:text-white'}`}>
+                      <FileJson className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                   <button onClick={handleCopy} className="btn-secondary py-1 px-1.5">
                     {copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
                   </button>
@@ -304,27 +316,42 @@ function App() {
                 </div>
               </div>
 
-              <div className="overflow-x-auto overflow-y-auto max-h-[350px]">
-                {data.length > 0 ? (
-                  <table className="table-glass min-w-full">
-                    <thead className="sticky top-0">
-                      <tr>{columns.map(col => <th key={col} className="text-[10px] py-1.5 px-2 whitespace-nowrap">{TYPE_LABELS[col] || col}</th>)}</tr>
-                    </thead>
-                    <tbody>
-                      {data.map((row, i) => (
-                        <tr key={i}>{columns.map(col => <td key={col} className="text-[10px] py-1.5 px-2 whitespace-nowrap">{row[col] || '-'}</td>)}</tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <table className="table-glass min-w-full">
-                    <thead className="sticky top-0"><tr><th className="text-[10px] py-1.5 px-2">{regexName}</th></tr></thead>
-                    <tbody>
-                      {regexData.map((v, i) => <tr key={i}><td className="text-[10px] py-1.5 px-2">{v}</td></tr>)}
-                    </tbody>
-                  </table>
-                )}
-              </div>
+              {viewMode === 'table' ? (
+                <div className="overflow-x-auto overflow-y-auto max-h-[350px]">
+                  {data.length > 0 ? (
+                    <table className="table-glass min-w-full">
+                      <thead className="sticky top-0">
+                        <tr>{columns.map(col => <th key={col} className="text-[10px] py-1.5 px-2 whitespace-nowrap">{TYPE_LABELS[col] || col}</th>)}</tr>
+                      </thead>
+                      <tbody>
+                        {data.map((row, i) => (
+                          <tr key={i}>{columns.map(col => <td key={col} className="text-[10px] py-1.5 px-2 whitespace-nowrap">{row[col] || '-'}</td>)}</tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <table className="table-glass min-w-full">
+                      <thead className="sticky top-0"><tr><th className="text-[10px] py-1.5 px-2">{regexName}</th></tr></thead>
+                      <tbody>
+                        {regexData.map((v, i) => <tr key={i}><td className="text-[10px] py-1.5 px-2">{v}</td></tr>)}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              ) : (
+                <div className="overflow-auto max-h-[350px] bg-black/20 rounded-lg p-2">
+                  <pre className="text-[10px] text-[#94a3b8] font-mono whitespace-pre-wrap break-all">
+                    {data.length > 0 
+                      ? JSON.stringify(data.map(row => {
+                          const item: Record<string, string> = {}
+                          columns.forEach(col => { item[TYPE_LABELS[col] || col] = row[col] || '' })
+                          return item
+                        }), null, 2)
+                      : JSON.stringify(regexData.map(v => ({ [regexName]: v })), null, 2)
+                    }
+                  </pre>
+                </div>
+              )}
             </div>
           )}
 
