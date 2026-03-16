@@ -11,83 +11,84 @@ import {
   Database,
   Wand2,
   ChevronRight,
-  Github
+  Github,
+  AlertCircle
 } from 'lucide-react'
 
-// 简单的本地生成函数
-const generatePhone = () => {
-  const prefixes = ['134', '135', '136', '137', '138', '139', '150', '151', '152', '157', '158', '159', '182', '183', '184', '187', '188', '178', '147', '172', '198', '130', '131', '132', '155', '156', '185', '186', '145', '176', '175', '166', '196', '133', '153', '180', '181', '189', '177', '173', '199', '191']
-  const prefix = prefixes[Math.floor(Math.random() * prefixes.length)]
-  const suffix = Array.from({ length: 11 - prefix.length }, () => Math.floor(Math.random() * 10)).join('')
-  return prefix + suffix
+const API_BASE = 'http://localhost:8000/api'
+
+interface DataItem {
+  phone?: string
+  email?: string
+  id_card?: string
 }
 
-const generateEmail = () => {
-  const domains = ['qq.com', '163.com', '126.com', 'gmail.com', 'outlook.com', 'sina.com', 'sohu.com', 'foxmail.com']
-  const names = ['zhang', 'wang', 'li', 'zhao', 'chen', 'liu', 'yang', 'huang', 'zhou', 'wu']
-  const name = names[Math.floor(Math.random() * names.length)]
-  const num = Math.floor(Math.random() * 9999)
-  const domain = domains[Math.floor(Math.random() * domains.length)]
-  return `${name}${num}@${domain}`
-}
-
-const generateIdCard = () => {
-  const provinces = ['11', '12', '13', '14', '15', '21', '22', '23', '31', '32', '33', '34', '35', '36', '37', '41', '42', '43', '44', '45', '46', '50', '51', '52', '53', '54', '61', '62', '63', '64', '65']
-  const province = provinces[Math.floor(Math.random() * provinces.length)]
-  const city = String(Math.floor(Math.random() * 99 + 1)).padStart(2, '0')
-  const district = String(Math.floor(Math.random() * 99 + 1)).padStart(2, '0')
-  
-  const now = new Date()
-  const minYear = now.getFullYear() - 65
-  const maxYear = now.getFullYear() - 18
-  const year = Math.floor(Math.random() * (maxYear - minYear + 1)) + minYear
-  const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')
-  const day = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')
-  
-  const sequence = String(Math.floor(Math.random() * 999) + 1).padStart(3, '0')
-  
-  const weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]
-  const checkCodes = '10X98765432'
-  const id17 = province + city + district + year + month + day + sequence
-  let sum = 0
-  for (let i = 0; i < 17; i++) {
-    sum += parseInt(id17[i]) * weights[i]
-  }
-  const checkCode = checkCodes[sum % 11]
-  
-  return id17 + checkCode
+interface GenerateResponse {
+  success: boolean
+  count: number
+  data: DataItem[]
 }
 
 function App() {
   const [count, setCount] = useState(10)
-  const [data, setData] = useState<Array<{ phone: string; email: string; idCard: string }>>([])
+  const [data, setData] = useState<DataItem[]>([])
   const [copied, setCopied] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setIsGenerating(true)
+    setError(null)
     
-    // 添加一点延迟，让动画更明显
-    setTimeout(() => {
-      const newData = Array.from({ length: count }, () => ({
-        phone: generatePhone(),
-        email: generateEmail(),
-        idCard: generateIdCard(),
-      }))
-      setData(newData)
+    try {
+      const response = await fetch(`${API_BASE}/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          count,
+          types: ['phone', 'email', 'id_card'],
+        }),
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const result: GenerateResponse = await response.json()
+      setData(result.data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '生成失败，请检查后端服务')
+      console.error('Generate error:', err)
+    } finally {
       setIsGenerating(false)
-    }, 300)
+    }
   }
 
   const handleCopy = () => {
-    const text = data.map(row => `${row.phone}\t${row.email}\t${row.idCard}`).join('\n')
+    const text = data.map(row => {
+      const parts = []
+      if (row.phone) parts.push(row.phone)
+      if (row.email) parts.push(row.email)
+      if (row.id_card) parts.push(row.id_card)
+      return parts.join('\t')
+    }).join('\n')
+    
     navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
   const handleExportCSV = () => {
-    const csv = '手机号,邮箱,身份证号\n' + data.map(row => `${row.phone},${row.email},${row.idCard}`).join('\n')
+    const headers = ['手机号', '邮箱', '身份证号']
+    const rows = data.map(row => [
+      row.phone || '',
+      row.email || '',
+      row.id_card || '',
+    ].join(','))
+    
+    const csv = headers.join(',') + '\n' + rows.join('\n')
     const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -99,9 +100,9 @@ function App() {
 
   const handleExportJSON = () => {
     const json = JSON.stringify(data.map(row => ({
-      '手机号': row.phone,
-      '邮箱': row.email,
-      '身份证号': row.idCard,
+      '手机号': row.phone || '',
+      '邮箱': row.email || '',
+      '身份证号': row.id_card || '',
     })), null, 2)
     const blob = new Blob([json], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -134,13 +135,13 @@ function App() {
               <a href="#features" className="text-sm text-gray-600 hover:text-pink-500 transition-colors">功能</a>
               <a href="#generator" className="text-sm text-gray-600 hover:text-pink-500 transition-colors">生成器</a>
               <a 
-                href="https://github.com" 
+                href="http://localhost:8000/docs" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-pink-500 transition-colors"
               >
-                <Github className="w-4 h-4" />
-                GitHub
+                <Settings className="w-4 h-4" />
+                API 文档
               </a>
             </div>
           </div>
@@ -174,10 +175,14 @@ function App() {
               <Sparkles className="w-4 h-4" />
               立即开始
             </button>
-            <button className="btn-secondary flex items-center gap-2">
+            <a 
+              href="http://localhost:8000/docs"
+              target="_blank"
+              className="btn-secondary flex items-center gap-2"
+            >
               <Settings className="w-4 h-4" />
-              查看文档
-            </button>
+              API 文档
+            </a>
           </div>
         </div>
       </section>
@@ -273,6 +278,20 @@ function App() {
                 )}
               </button>
             </div>
+
+            {/* 错误提示 */}
+            {error && (
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-red-800">生成失败</p>
+                  <p className="text-sm text-red-600 mt-1">{error}</p>
+                  <p className="text-xs text-red-500 mt-2">
+                    请确保后端服务正在运行：<code className="bg-red-100 px-1.5 py-0.5 rounded">uvicorn testdata_factory.api:app --reload --port 8000</code>
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* 结果展示 */}
@@ -347,9 +366,9 @@ function App() {
                   <tbody>
                     {data.map((row, index) => (
                       <tr key={index}>
-                        <td className="font-mono text-sm">{row.phone}</td>
-                        <td className="text-sm">{row.email}</td>
-                        <td className="font-mono text-sm">{row.idCard}</td>
+                        <td className="font-mono text-sm">{row.phone || '-'}</td>
+                        <td className="text-sm">{row.email || '-'}</td>
+                        <td className="font-mono text-sm">{row.id_card || '-'}</td>
                       </tr>
                     ))}
                   </tbody>
