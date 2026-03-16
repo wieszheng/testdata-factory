@@ -257,17 +257,17 @@ function App() {
 
             <div className="divider-glow mb-3" />
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-end gap-2">
               <div className="w-[70px]">
                 <label className="block text-[10px] text-[#94a3b8] mb-1">数量</label>
                 <input type="number" value={count} onChange={(e) => setCount(Math.max(1, Math.min(1000, parseInt(e.target.value) || 1)))}
                   min={1} max={1000} className="input-glass text-center text-xs font-semibold py-1 px-1" />
               </div>
               <button onClick={handleGenerate} disabled={isGenerating || selectedTypes.length === 0}
-                className="btn-primary flex items-center gap-1 disabled:opacity-50 mt-3.5">
+                className="btn-primary flex items-center justify-center gap-1 disabled:opacity-50 h-[28px] px-3 text-[10px]">
                 {isGenerating ? <>
                   <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  生成中...
+                  生成中
                 </> : <>
                   <Sparkles className="w-3 h-3" />生成
                 </>}
