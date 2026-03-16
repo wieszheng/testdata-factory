@@ -7,6 +7,7 @@ import {
   Server, ChevronRight, X, Loader2, FileCode, Sun, Moon
 } from 'lucide-react'
 import { ToastProvider, useToast } from './components/ui/toast-provider'
+import { Card, CardHeader, CardTitle, CardContent } from './components/ui/card'
 
 const API_BASE = 'http://localhost:8001/api'
 
