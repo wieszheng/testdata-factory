@@ -309,14 +309,12 @@ ${values.join(',\n')};`
               <div className="flex flex-wrap gap-1">
                 {DATA_TYPES.map(type => (
                   <button key={type.key} onClick={() => toggleType(type.key)}
-                    className={`text-[10px] py-1.5 px-2.5 rounded transition-colors ${
+                    className={`type-btn text-xs ${
                       selectedTypes.includes(type.key) 
-                        ? isDark 
-                          ? 'bg-gradient-to-r from-[#ff6b4a]/20 to-[#5a5eff]/20 border border-[#ff6b4a]/40 text-white' 
-                          : 'bg-[#ff6b4a]/10 border border-[#ff6b4a]/40 text-[#ff6b4a]'
-                        : isDark
-                          ? 'bg-white/5 border border-white/10 text-[#94a3b8] hover:bg-white/10'
-                          : 'bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200'
+                        ? 'active' 
+                        : isDark 
+                          ? '' 
+                          : 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-gray-200'
                     }`}>
                     {type.icon}<span className="ml-0.5">{type.label}</span>
                   </button>
