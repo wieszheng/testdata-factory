@@ -307,11 +307,11 @@ function App() {
                   <button onClick={handleCopy} className="btn-secondary py-1 px-1.5">
                     {copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
                   </button>
-                  <button onClick={handleExportCSV} className="btn-secondary py-1 px-1.5 text-[10px]">
-                    <Download className="w-3 h-3" />CSV
+                  <button onClick={handleExportCSV} className="btn-secondary py-1 px-1.5" title="导出CSV">
+                    <Download className="w-3 h-3" />
                   </button>
-                  <button onClick={handleExportJSON} className="btn-secondary py-1 px-1.5 text-[10px]">
-                    <Download className="w-3 h-3" />JSON
+                  <button onClick={handleExportJSON} className="btn-secondary py-1 px-1.5" title="导出JSON">
+                    <FileJson className="w-3 h-3" />
                   </button>
                 </div>
               </div>
