@@ -4,7 +4,7 @@ import {
   Settings, Database, Wand2, ChevronDown, Globe, MapPin,
   Calendar, User, Link, AlertCircle, Code, Building, Briefcase,
   DollarSign, Palette, Fingerprint, Key, FileText, Table, FileJson,
-  Server, ChevronRight, X, Loader2
+  Server, ChevronRight, X, Loader2, FileCode
 } from 'lucide-react'
 import { ToastProvider, useToast } from './components/ui/toast-provider'
 
@@ -204,6 +204,61 @@ function AppContent() {
     }
   }
 
+  // SQL 导出相关
+  const [showSqlModal, setShowSqlModal] = useState(false)
+  const [sqlTableName, setSqlTableName] = useState('test_table')
+
+  const handleExportSQL = () => {
+    if (data.length === 0 && regexData.length === 0) {
+      toast({ description: '没有数据可导出', variant: 'warning' })
+      return
+    }
+    setShowSqlModal(true)
+  }
+
+  const generateSQL = () => {
+    if (data.length > 0) {
+      // 多列数据
+      const colNames = columns.map(col => TYPE_LABELS[col] || col)
+      const values = data.map(row => {
+        const vals = columns.map(col => {
+          const val = row[col] || ''
+          return `'${val.replace(/'/g, "''")}'`  // 转义单引号
+        })
+        return `(${vals.join(', ')})`
+      })
+      
+      const sql = `-- 插入 ${data.length} 条记录到表 ${sqlTableName}
+INSERT INTO ${sqlTableName} (${colNames.join(', ')}) VALUES
+${values.join(',\n')};`
+      return sql
+    } else if (regexData.length > 0) {
+      // 单列数据
+      const values = regexData.map(val => `('${val.replace(/'/g, "''")}')`)
+      
+      const sql = `-- 插入 ${regexData.length} 条记录到表 ${sqlTableName}
+INSERT INTO ${sqlTableName} (${regexName}) VALUES
+${values.join(',\n')};`
+      return sql
+    }
+    return ''
+  }
+
+  const handleDownloadSQL = () => {
+    const sql = generateSQL()
+    if (sql) {
+      const blob = new Blob([sql], { type: 'text/plain;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `insert_${sqlTableName}_${Date.now()}.sql`
+      a.click()
+      URL.revokeObjectURL(url)
+      setShowSqlModal(false)
+      toast({ description: 'SQL 文件已下载', variant: 'success' })
+    }
+  }
+
   return (
     <div className="min-h-screen">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -400,6 +455,7 @@ function AppContent() {
                   <button onClick={handleCopy} className="btn-secondary py-1 px-1.5">{copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}</button>
                   <button onClick={handleExportCSV} className="btn-secondary py-1 px-1.5" title="导出CSV"><Download className="w-3 h-3" /></button>
                   <button onClick={handleExportJSON} className="btn-secondary py-1 px-1.5" title="导出JSON"><FileJson className="w-3 h-3" /></button>
+                  <button onClick={handleExportSQL} className="btn-secondary py-1 px-1.5" title="导出SQL"><FileCode className="w-3 h-3" /></button>
                 </div>
               </div>
 
@@ -428,6 +484,57 @@ function AppContent() {
           )}
         </div>
       </section>
+
+      {/* SQL 导出弹窗 */}
+      {showSqlModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="glass-card p-4 w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <FileCode className="w-4 h-4 text-[#5a5eff]" />
+                导出 SQL
+              </h3>
+              <button onClick={() => setShowSqlModal(false)} className="text-[#94a3b8] hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="flex items-center gap-2 mb-3">
+              <label className="text-[10px] text-[#94a3b8]">表名:</label>
+              <input
+                type="text"
+                value={sqlTableName}
+                onChange={(e) => setSqlTableName(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
+                className="input-glass text-[10px] py-1 px-2 w-40"
+                placeholder="table_name"
+              />
+            </div>
+            
+            <div className="flex-1 overflow-auto bg-black/30 rounded-lg p-3 mb-3">
+              <pre className="text-[10px] font-mono text-[#94a3b8] whitespace-pre-wrap">
+                {generateSQL()}
+              </pre>
+            </div>
+            
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setShowSqlModal(false)} className="btn-secondary py-1.5 px-3 text-[10px]">
+                取消
+              </button>
+              <button
+                onClick={() => { navigator.clipboard.writeText(generateSQL()); toast({ description: '已复制到剪贴板', variant: 'success' }); }}
+                className="btn-secondary py-1.5 px-3 text-[10px]"
+              >
+                <Copy className="w-3 h-3 inline mr-1" />
+                复制
+              </button>
+              <button onClick={handleDownloadSQL} className="btn-primary py-1.5 px-3 text-[10px]">
+                <Download className="w-3 h-3 inline mr-1" />
+                下载 .sql
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className="border-t border-white/10 py-3 px-4">
         <div className="max-w-6xl mx-auto text-center">
