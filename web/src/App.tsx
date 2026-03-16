@@ -361,33 +361,33 @@ function App() {
             <div className="divider-glow mb-4" />
 
             {/* 数量和生成按钮 */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
-              <div className="flex-1 w-full sm:max-w-[140px]">
-                <label className="block text-xs font-medium text-[#94a3b8] mb-1.5">生成数量</label>
+            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-2">
+              <div className="flex-1 w-full sm:max-w-[100px]">
+                <label className="block text-xs font-medium text-[#94a3b8] mb-1">数量</label>
                 <input
                   type="number"
                   value={count}
                   onChange={(e) => setCount(Math.max(1, Math.min(1000, parseInt(e.target.value) || 1)))}
                   min={1}
                   max={1000}
-                  className="input-glass text-center text-base font-semibold py-2"
+                  className="input-glass text-center text-sm font-semibold py-1.5 px-2"
                 />
               </div>
               
               <button 
                 onClick={handleGenerate}
                 disabled={isGenerating || selectedTypes.length === 0}
-                className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2 disabled:opacity-50 py-2.5 px-5 text-sm"
+                className="btn-primary w-full sm:w-auto flex items-center justify-center gap-1.5 disabled:opacity-50 py-1.5 px-3 text-xs"
               >
                 {isGenerating ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     生成中...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4" />
-                    生成数据
+                    <Sparkles className="w-3 h-3" />
+                    生成
                   </>
                 )}
               </button>
