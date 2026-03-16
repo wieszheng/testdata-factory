@@ -4,7 +4,7 @@ import {
   Settings, Database, Wand2, ChevronDown, Globe, MapPin,
   Calendar, User, Link, AlertCircle, Code, Building, Briefcase,
   DollarSign, Palette, Fingerprint, Key, FileText, Table, FileJson,
-  Server, ChevronRight, X, Loader2, FileCode
+  Server, ChevronRight, X, Loader2, FileCode, Sun, Moon
 } from 'lucide-react'
 import { ToastProvider, useToast } from './components/ui/toast-provider'
 
@@ -63,6 +63,9 @@ function AppContent() {
   const [templates, setTemplates] = useState<RegexTemplate[]>([])
   const [regexData, setRegexData] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<'table' | 'json'>('table')
+  
+  // 主题切换
+  const [isDark, setIsDark] = useState(true)
   
   // 数据库相关
   const [showDbPanel, setShowDbPanel] = useState(false)
@@ -260,37 +263,46 @@ ${values.join(',\n')};`
   }
 
   return (
-    <div className="min-h-screen">
+    <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-[#0f1419] text-white' : 'bg-gray-50 text-gray-900'}`}>
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#ff6b4a] opacity-10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#5a5eff] opacity-10 rounded-full blur-3xl" />
+        <div className={`absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl ${isDark ? 'bg-[#ff6b4a] opacity-10' : 'bg-[#ff6b4a] opacity-20'}`} />
+        <div className={`absolute bottom-0 right-1/4 w-96 h-96 rounded-full blur-3xl ${isDark ? 'bg-[#5a5eff] opacity-10' : 'bg-blue-400 opacity-20'}`} />
       </div>
 
-      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-[#0f1419]/80 border-b border-white/10">
+      <nav className={`sticky top-0 z-50 backdrop-blur-xl border-b ${isDark ? 'bg-[#0f1419]/80 border-white/10' : 'bg-white/80 border-gray-200'}`}>
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="icon-glow animate-glow p-1.5"><Sparkles className="w-4 h-4 text-white" /></div>
+            <div className={`p-1.5 rounded-lg ${isDark ? 'bg-gradient-to-br from-[#ff6b4a] to-[#ff8f7a]' : 'bg-gradient-to-br from-[#ff6b4a] to-[#ff8f7a]'}`}><Sparkles className="w-4 h-4 text-white" /></div>
             <div>
-              <h1 className="text-sm font-bold gradient-text-warm">TestData Factory</h1>
-              <p className="text-[10px] text-[#94a3b8]">智能测试数据生成器</p>
+              <h1 className={`text-sm font-bold ${isDark ? 'gradient-text-warm' : 'text-[#ff6b4a]'}`}>TestData Factory</h1>
+              <p className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>智能测试数据生成器</p>
             </div>
           </div>
-          <a href="http://localhost:8000/docs" target="_blank" className="text-[10px] text-[#94a3b8] hover:text-[#ff6b4a] flex items-center gap-1">
-            <Settings className="w-3 h-3" /> API
-          </a>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setIsDark(!isDark)}
+              className={`p-1.5 rounded-lg transition-colors ${isDark ? 'bg-white/10 text-yellow-400 hover:bg-white/20' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+              title={isDark ? '切换亮色模式' : '切换深色模式'}
+            >
+              {isDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+            </button>
+            <a href="http://localhost:8000/docs" target="_blank" className="text-[10px] text-[#94a3b8] hover:text-[#ff6b4a] flex items-center gap-1">
+              <Settings className="w-3 h-3" /> API
+            </a>
+          </div>
         </div>
       </nav>
 
-      <section className="py-4 px-4">
+      <section className={`py-4 px-4 ${isDark ? '' : 'bg-gray-50'}`}>
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-xl font-bold mb-1"><span className="gradient-text-warm">测试数据</span><span className="text-white"> 一键生成</span></h2>
-          <p className="text-xs text-[#94a3b8]">17 种数据类型 · 自定义正则 · 数据库逆向 · 导出 CSV/JSON</p>
+          <h2 className="text-xl font-bold mb-1"><span className="gradient-text-warm">测试数据</span><span className={isDark ? 'text-white' : 'text-gray-900'}> 一键生成</span></h2>
+          <p className={`text-xs ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>17 种数据类型 · 自定义正则 · 数据库逆向 · 导出 CSV/JSON/SQL</p>
         </div>
       </section>
 
       <section className="pb-8 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="glass-card p-3 sm:p-4 mb-3 animate-glow">
+          <div className={`p-3 sm:p-4 mb-3 rounded-xl ${isDark ? 'glass-card animate-glow' : 'bg-white shadow-lg border border-gray-200'}`}>
             {/* 数据类型选择 */}
             <div className="mb-3">
               <label className="block text-[10px] font-medium text-[#94a3b8] mb-1.5">选择数据类型</label>
@@ -488,30 +500,30 @@ ${values.join(',\n')};`
       {/* SQL 导出弹窗 */}
       {showSqlModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="glass-card p-4 w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col">
+          <div className={`p-4 w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col rounded-xl ${isDark ? 'glass-card' : 'bg-white shadow-2xl border border-gray-200'}`}>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <h3 className={`text-sm font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 <FileCode className="w-4 h-4 text-[#5a5eff]" />
                 导出 SQL
               </h3>
-              <button onClick={() => setShowSqlModal(false)} className="text-[#94a3b8] hover:text-white">
+              <button onClick={() => setShowSqlModal(false)} className={isDark ? 'text-[#94a3b8] hover:text-white' : 'text-gray-400 hover:text-gray-600'}>
                 <X className="w-4 h-4" />
               </button>
             </div>
             
             <div className="flex items-center gap-2 mb-3">
-              <label className="text-[10px] text-[#94a3b8]">表名:</label>
+              <label className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>表名:</label>
               <input
                 type="text"
                 value={sqlTableName}
                 onChange={(e) => setSqlTableName(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
-                className="input-glass text-[10px] py-1 px-2 w-40"
+                className={`text-[10px] py-1 px-2 w-40 rounded ${isDark ? 'input-glass' : 'border border-gray-300 bg-gray-50'}`}
                 placeholder="table_name"
               />
             </div>
             
-            <div className="flex-1 overflow-auto bg-black/30 rounded-lg p-3 mb-3">
-              <pre className="text-[10px] font-mono text-[#94a3b8] whitespace-pre-wrap">
+            <div className={`flex-1 overflow-auto rounded-lg p-3 mb-3 ${isDark ? 'bg-black/30' : 'bg-gray-100'}`}>
+              <pre className={`text-[10px] font-mono whitespace-pre-wrap ${isDark ? 'text-[#94a3b8]' : 'text-gray-700'}`}>
                 {generateSQL()}
               </pre>
             </div>
@@ -536,9 +548,9 @@ ${values.join(',\n')};`
         </div>
       )}
 
-      <footer className="border-t border-white/10 py-3 px-4">
+      <footer className={`border-t py-3 px-4 ${isDark ? 'border-white/10' : 'border-gray-200 bg-white'}`}>
         <div className="max-w-6xl mx-auto text-center">
-          <p className="text-[10px] text-[#94a3b8]">Made with <span className="text-[#ff6b4a]">♥</span> by 知微 & 千机</p>
+          <p className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>Made with <span className="text-[#ff6b4a]">♥</span> by 知微 & 千机</p>
         </div>
       </footer>
     </div>
