@@ -25,9 +25,10 @@ class DatabaseParser:
     def __init__(self, config: DatabaseConfig):
         self.config = config
         self._connection = None
+        self._last_error: Optional[str] = None
     
-    async def connect(self) -> bool:
-        """连接数据库"""
+    async def connect(self) -> tuple[bool, str]:
+        """连接数据库，返回 (是否成功, 错误信息)"""
         try:
             if self.config.db_type == "mysql":
                 import aiomysql
@@ -38,7 +39,10 @@ class DatabaseParser:
                     password=self.config.password,
                     db=self.config.database,
                     charset=self.config.charset,
+                    connect_timeout=10,
                 )
+                return (True, "")
+            
             elif self.config.db_type == "postgresql":
                 import asyncpg
                 self._connection = await asyncpg.connect(
@@ -47,15 +51,37 @@ class DatabaseParser:
                     user=self.config.username,
                     password=self.config.password,
                     database=self.config.database,
+                    timeout=10,
                 )
+                return (True, "")
+            
             elif self.config.db_type == "sqlite":
                 import aiosqlite
                 self._connection = await aiosqlite.connect(self.config.database)
+                return (True, "")
             
-            return True
+            else:
+                return (False, f"不支持的数据库类型: {self.config.db_type}")
+        
+        except ImportError as e:
+            return (False, f"缺少依赖: {str(e)}，请安装对应的数据库驱动")
         except Exception as e:
-            print(f"Database connection error: {e}")
-            return False
+            error_msg = str(e)
+            # 友好化错误信息
+            if "Access denied" in error_msg:
+                return (False, "用户名或密码错误")
+            elif "Unknown database" in error_msg:
+                return (False, f"数据库 '{self.config.database}' 不存在")
+            elif "Connection refused" in error_msg:
+                return (False, f"无法连接到 {self.config.host}:{self.config.port}，请检查服务是否启动")
+            elif "No such file" in error_msg:
+                return (False, f"SQLite 文件不存在: {self.config.database}")
+            elif "name or service not known" in error_msg.lower():
+                return (False, f"无法解析主机名: {self.config.host}")
+            elif "timed out" in error_msg.lower():
+                return (False, "连接超时，请检查网络或防火墙设置")
+            else:
+                return (False, f"连接失败: {error_msg}")
     
     async def close(self):
         """关闭连接"""
@@ -72,14 +98,13 @@ class DatabaseParser:
                 return [row[0] for row in rows]
         
         elif self.config.db_type == "postgresql":
-            async with self._connection.cursor() as cursor:
-                await cursor.execute("""
-                    SELECT table_name 
-                    FROM information_schema.tables 
-                    WHERE table_schema = 'public'
-                """)
-                rows = await cursor.fetchall()
-                return [row[0] for row in rows]
+            # asyncpg 使用不同的 API
+            rows = await self._connection.fetch("""
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_schema = 'public'
+            """)
+            return [row['table_name'] for row in rows]
         
         elif self.config.db_type == "sqlite":
             async with self._connection.cursor() as cursor:
@@ -161,47 +186,46 @@ class DatabaseParser:
         """解析 PostgreSQL 表结构"""
         columns = []
         
-        async with self._connection.cursor() as cursor:
-            # 获取字段信息
-            await cursor.execute(f"""
-                SELECT 
-                    column_name,
-                    data_type,
-                    is_nullable,
-                    column_default,
-                    character_maximum_length
-                FROM information_schema.columns
-                WHERE table_schema = 'public' AND table_name = %s
-                ORDER BY ordinal_position
-            """, (table_name,))
+        # asyncpg 使用 fetch 方法
+        column_rows = await self._connection.fetch("""
+            SELECT 
+                column_name,
+                data_type,
+                is_nullable,
+                column_default,
+                character_maximum_length
+            FROM information_schema.columns
+            WHERE table_schema = 'public' AND table_name = $1
+            ORDER BY ordinal_position
+        """, table_name)
+        
+        # 获取主键信息
+        pk_rows = await self._connection.fetch("""
+            SELECT a.attname
+            FROM pg_index i
+            JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
+            WHERE i.indrelid = $1::regclass AND i.indisprimary
+        """, table_name)
+        
+        pk_columns = {row['attname'] for row in pk_rows}
+        
+        for row in column_rows:
+            col_name = row['column_name']
+            col_type = row['data_type']
+            is_nullable = (row['is_nullable'] == "YES")
+            col_default = row['column_default']
             
-            column_rows = await cursor.fetchall()
-            
-            # 获取主键信息
-            await cursor.execute(f"""
-                SELECT a.attname
-                FROM pg_index i
-                JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
-                WHERE i.indrelid = %s::regclass AND i.indisprimary
-            """, (table_name,))
-            
-            pk_rows = await cursor.fetchall()
-            pk_columns = {row[0] for row in pk_rows}
-            
-            for row in column_rows:
-                col_name, col_type, is_nullable, col_default, char_len = row
-                
-                column = ColumnInfo(
-                    name=col_name,
-                    data_type=col_type,
-                    is_nullable=(is_nullable == "YES"),
-                    is_primary_key=(col_name in pk_columns),
-                    is_foreign_key=False,
-                    foreign_key_ref=None,
-                    column_default=col_default,
-                    column_comment=None,
-                )
-                columns.append(column)
+            column = ColumnInfo(
+                name=col_name,
+                data_type=col_type,
+                is_nullable=is_nullable,
+                is_primary_key=(col_name in pk_columns),
+                is_foreign_key=False,
+                foreign_key_ref=None,
+                column_default=col_default,
+                column_comment=None,
+            )
+            columns.append(column)
         
         return columns
     

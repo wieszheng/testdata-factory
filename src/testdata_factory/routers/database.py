@@ -84,12 +84,12 @@ async def connect_database(request: DatabaseConnectRequest):
     parser = DatabaseParser(config)
     
     try:
-        connected = await parser.connect()
+        connected, error_msg = await parser.connect()
         
         if not connected:
             return ConnectionTestResponse(
                 success=False,
-                message="连接失败，请检查配置"
+                message=error_msg or "连接失败，请检查配置"
             )
         
         tables = await parser.get_tables()
@@ -127,10 +127,10 @@ async def get_table_detail(request: DatabaseConnectRequest, table_name: str):
     parser = DatabaseParser(config)
     
     try:
-        connected = await parser.connect()
+        connected, error_msg = await parser.connect()
         
         if not connected:
-            raise HTTPException(status_code=400, detail="连接失败")
+            raise HTTPException(status_code=400, detail=error_msg or "连接失败")
         
         table_info = await parser.parse_table(table_name)
         
