@@ -317,22 +317,93 @@ ${values.join(',\n')};`
             </div>
 
             {/* 正则规则 */}
-            <div className="mb-3">
-              <button onClick={() => setShowRegex(!showRegex)} className={`flex items-center gap-1.5 text-[10px] ${isDark ? 'text-[#5a5eff] hover:text-[#768dff]' : 'text-[#4a3df0] hover:text-[#5a5eff]'}`}>
-                <Code className="w-3 h-3" />自定义正则
-                <ChevronDown className={`w-3 h-3 transition-transform ${showRegex ? 'rotate-180' : ''}`} />
+            <div className={`mb-3 rounded-lg overflow-hidden ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
+              <button 
+                onClick={() => setShowRegex(!showRegex)} 
+                className={`w-full flex items-center justify-between px-3 py-2 text-[10px] font-medium transition-colors ${
+                  isDark 
+                    ? 'text-[#5a5eff] hover:bg-white/5' 
+                    : 'text-[#4a3df0] hover:bg-gray-200'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Code className="w-3.5 h-3.5" />
+                  <span>自定义正则规则</span>
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded ${isDark ? 'bg-white/10 text-[#94a3b8]' : 'bg-gray-200 text-gray-500'}`}>
+                    高级
+                  </span>
+                </div>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showRegex ? 'rotate-180' : ''}`} />
               </button>
               
               {showRegex && (
-                <div className={`mt-2 p-2 rounded-lg grid gap-2 sm:grid-cols-2 ${isDark ? 'bg-white/5 border border-white/10' : 'bg-gray-100 border border-gray-200'}`}>
-                  <input type="text" value={regexName} onChange={(e) => setRegexName(e.target.value)} placeholder="字段名" className={`text-[10px] py-1 px-2 rounded ${isDark ? 'input-glass' : 'border border-gray-300 bg-white'}`} />
-                  <select value={regexPattern} onChange={(e) => { setRegexPattern(e.target.value); const t = templates.find(t => t.pattern === e.target.value); if (t) setRegexName(t.name) }} className={`text-[10px] py-1 px-2 rounded ${isDark ? 'input-glass' : 'border border-gray-300 bg-white'}`}>
-                    <option value="">选择模板...</option>
-                    {templates.map(t => <option key={t.name} value={t.pattern}>{t.name}</option>)}
-                  </select>
-                  <input type="text" value={regexPattern} onChange={(e) => setRegexPattern(e.target.value)} placeholder="正则: ORD\d{14}" className={`text-[10px] font-mono px-2 py-1 rounded sm:col-span-2 ${isDark ? 'input-glass' : 'border border-gray-300 bg-white'}`} />
-                  <button onClick={handleRegexGenerate} disabled={isGenerating || !regexPattern.trim()} className="px-2 py-1 bg-gradient-to-r from-[#5a5eff] to-[#768dff] text-white rounded text-[10px] font-medium disabled:opacity-50 sm:col-span-2">
-                    <Wand2 className="w-3 h-3 inline mr-1" />生成
+                <div className={`px-3 pb-3 space-y-2 border-t ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
+                  <div className="grid grid-cols-2 gap-2 pt-2">
+                    <div>
+                      <label className={`block text-[9px] mb-1 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>
+                        字段名称
+                      </label>
+                      <input 
+                        type="text" 
+                        value={regexName} 
+                        onChange={(e) => setRegexName(e.target.value)} 
+                        placeholder="如：订单号" 
+                        className={`text-[10px] py-1.5 px-2 rounded w-full ${
+                          isDark 
+                            ? 'bg-white/5 border border-white/10 text-white placeholder:text-white/30' 
+                            : 'bg-white border border-gray-200 text-gray-900 placeholder:text-gray-400'
+                        } focus:outline-none focus:ring-1 focus:ring-[#5a5eff]/50`} 
+                      />
+                    </div>
+                    <div>
+                      <label className={`block text-[9px] mb-1 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>
+                        选择模板
+                      </label>
+                      <select 
+                        value={regexPattern} 
+                        onChange={(e) => { 
+                          setRegexPattern(e.target.value); 
+                          const t = templates.find(t => t.pattern === e.target.value); 
+                          if (t) setRegexName(t.name);
+                        }} 
+                        className={`text-[10px] py-1.5 px-2 rounded w-full ${
+                          isDark 
+                            ? 'bg-white/5 border border-white/10 text-white' 
+                            : 'bg-white border border-gray-200 text-gray-900'
+                        } focus:outline-none focus:ring-1 focus:ring-[#5a5eff]/50`}
+                      >
+                        <option value="">选择模板...</option>
+                        {templates.map(t => (
+                          <option key={t.name} value={t.pattern}>{t.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className={`block text-[9px] mb-1 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>
+                      正则表达式
+                    </label>
+                    <input 
+                      type="text" 
+                      value={regexPattern} 
+                      onChange={(e) => setRegexPattern(e.target.value)} 
+                      placeholder="如：ORD\d{14} 或 \d{4}-\d{4}-\d{4}" 
+                      className={`text-[10px] font-mono py-1.5 px-2 rounded w-full ${
+                        isDark 
+                          ? 'bg-white/5 border border-white/10 text-[#05c4a5] placeholder:text-white/30' 
+                          : 'bg-white border border-gray-200 text-[#059669] placeholder:text-gray-400'
+                      } focus:outline-none focus:ring-1 focus:ring-[#05c4a5]/50`} 
+                    />
+                  </div>
+                  
+                  <button 
+                    onClick={handleRegexGenerate} 
+                    disabled={isGenerating || !regexPattern.trim()} 
+                    className="w-full py-1.5 bg-gradient-to-r from-[#5a5eff] to-[#768dff] text-white rounded text-[10px] font-medium disabled:opacity-50 flex items-center justify-center gap-1"
+                  >
+                    <Wand2 className="w-3 h-3" />
+                    根据正则生成数据
                   </button>
                 </div>
               )}
