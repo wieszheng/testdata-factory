@@ -302,7 +302,7 @@ ${values.join(',\n')};`
 
       <section className="pb-8 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className={`p-3 sm:p-4 mb-3 rounded-xl ${isDark ? 'glass-card' : 'bg-white shadow-lg border border-gray-200'}`}>
+          <div className={`p-3 sm:p-4 mb-3 rounded-lg ${isDark ? 'glass-card' : 'bg-white shadow-lg border border-gray-200'}`}>
             {/* 数据类型选择 */}
             <div className="mb-3">
               <label className={`block text-[10px] font-medium mb-1.5 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>选择数据类型</label>
@@ -355,7 +355,7 @@ ${values.join(',\n')};`
           </div>
 
           {/* 数据库逆向面板 */}
-          <div className={`p-3 sm:p-4 mb-3 rounded-xl ${isDark ? 'glass-card' : 'bg-white shadow border border-gray-200'}`}>
+          <div className={`p-3 sm:p-4 mb-3 rounded-lg ${isDark ? 'glass-card' : 'bg-white shadow border border-gray-200'}`}>
             <button onClick={() => setShowDbPanel(!showDbPanel)} className="w-full flex items-center justify-between text-[10px] font-medium text-[#05c4a5] hover:text-[#00d4b5]">
               <div className="flex items-center gap-2">
                 <Server className="w-3.5 h-3.5" />
@@ -459,7 +459,7 @@ ${values.join(',\n')};`
 
           {/* 结果展示 */}
           {(data.length > 0 || regexData.length > 0) && (
-            <div className={`p-3 sm:p-4 mb-3 rounded-xl ${isDark ? 'glass-card' : 'bg-white shadow border border-gray-200'}`}>
+            <div className={`p-3 sm:p-4 mb-3 rounded-lg ${isDark ? 'glass-card' : 'bg-white shadow border border-gray-200'}`}>
               <div className={`flex items-center justify-between gap-2 mb-3 pb-2 border-b ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
                 <div>
                   <h3 className={`font-bold text-xs ${isDark ? 'text-white' : 'text-gray-900'}`}>结果</h3>
