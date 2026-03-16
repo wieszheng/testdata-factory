@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   Sparkles, 
   Phone, 
@@ -11,32 +11,83 @@ import {
   Database,
   Wand2,
   ChevronRight,
-  Github,
+  Globe,
+  MapPin,
+  Calendar,
+  CreditCard as BankCard,
+  User,
+  Link,
   AlertCircle
 } from 'lucide-react'
 
 const API_BASE = 'http://localhost:8000/api'
 
+interface DataType {
+  key: string
+  label: string
+  icon: React.ReactNode
+}
+
+const DATA_TYPES: DataType[] = [
+  { key: 'phone', label: '手机号', icon: <Phone className="w-4 h-4" /> },
+  { key: 'email', label: '邮箱', icon: <Mail className="w-4 h-4" /> },
+  { key: 'id_card', label: '身份证号', icon: <CreditCard className="w-4 h-4" /> },
+  { key: 'name', label: '姓名', icon: <User className="w-4 h-4" /> },
+  { key: 'ip', label: 'IP地址', icon: <Globe className="w-4 h-4" /> },
+  { key: 'address', label: '地址', icon: <MapPin className="w-4 h-4" /> },
+  { key: 'date', label: '日期', icon: <Calendar className="w-4 h-4" /> },
+  { key: 'bank_card', label: '银行卡号', icon: <BankCard className="w-4 h-4" /> },
+  { key: 'url', label: 'URL', icon: <Link className="w-4 h-4" /> },
+]
+
+const TYPE_LABELS: Record<string, string> = {
+  phone: '手机号',
+  email: '邮箱',
+  id_card: '身份证号',
+  name: '姓名',
+  ip: 'IP地址',
+  ipv6: 'IPv6地址',
+  address: '地址',
+  date: '日期',
+  datetime: '日期时间',
+  bank_card: '银行卡号',
+  url: 'URL',
+}
+
 interface DataItem {
-  phone?: string
-  email?: string
-  id_card?: string
+  [key: string]: string
 }
 
 interface GenerateResponse {
   success: boolean
   count: number
+  types: string[]
   data: DataItem[]
 }
 
 function App() {
   const [count, setCount] = useState(10)
+  const [selectedTypes, setSelectedTypes] = useState<string[]>(['phone', 'email', 'id_card'])
   const [data, setData] = useState<DataItem[]>([])
+  const [columns, setColumns] = useState<string[]>([])
   const [copied, setCopied] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const toggleType = (key: string) => {
+    setSelectedTypes(prev => 
+      prev.includes(key) 
+        ? prev.filter(t => t !== key)
+        : [...prev, key]
+    )
+  }
+
   const handleGenerate = async () => {
+    if (selectedTypes.length === 0) {
+      setError('请至少选择一种数据类型')
+      return
+    }
+
     setIsGenerating(true)
     setError(null)
     
@@ -48,7 +99,7 @@ function App() {
         },
         body: JSON.stringify({
           count,
-          types: ['phone', 'email', 'id_card'],
+          types: selectedTypes,
         }),
       })
       
@@ -58,6 +109,7 @@ function App() {
       
       const result: GenerateResponse = await response.json()
       setData(result.data)
+      setColumns(result.types)
     } catch (err) {
       setError(err instanceof Error ? err.message : '生成失败，请检查后端服务')
       console.error('Generate error:', err)
@@ -67,13 +119,9 @@ function App() {
   }
 
   const handleCopy = () => {
-    const text = data.map(row => {
-      const parts = []
-      if (row.phone) parts.push(row.phone)
-      if (row.email) parts.push(row.email)
-      if (row.id_card) parts.push(row.id_card)
-      return parts.join('\t')
-    }).join('\n')
+    const text = data.map(row => 
+      columns.map(col => row[col] || '').join('\t')
+    ).join('\n')
     
     navigator.clipboard.writeText(text)
     setCopied(true)
@@ -81,12 +129,10 @@ function App() {
   }
 
   const handleExportCSV = () => {
-    const headers = ['手机号', '邮箱', '身份证号']
-    const rows = data.map(row => [
-      row.phone || '',
-      row.email || '',
-      row.id_card || '',
-    ].join(','))
+    const headers = columns.map(c => TYPE_LABELS[c] || c)
+    const rows = data.map(row => 
+      columns.map(col => row[col] || '').join(',')
+    )
     
     const csv = headers.join(',') + '\n' + rows.join('\n')
     const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' })
@@ -99,11 +145,13 @@ function App() {
   }
 
   const handleExportJSON = () => {
-    const json = JSON.stringify(data.map(row => ({
-      '手机号': row.phone || '',
-      '邮箱': row.email || '',
-      '身份证号': row.id_card || '',
-    })), null, 2)
+    const json = JSON.stringify(data.map(row => {
+      const item: Record<string, string> = {}
+      columns.forEach(col => {
+        item[TYPE_LABELS[col] || col] = row[col] || ''
+      })
+      return item
+    }), null, 2)
     const blob = new Blob([json], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -119,7 +167,6 @@ function App() {
       <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 border-b border-pink-100/50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
             <div className="flex items-center gap-3">
               <div className="icon-container">
                 <Sparkles className="w-5 h-5 text-white" />
@@ -130,9 +177,7 @@ function App() {
               </div>
             </div>
 
-            {/* 导航链接 */}
             <div className="hidden sm:flex items-center gap-6">
-              <a href="#features" className="text-sm text-gray-600 hover:text-pink-500 transition-colors">功能</a>
               <a href="#generator" className="text-sm text-gray-600 hover:text-pink-500 transition-colors">生成器</a>
               <a 
                 href="http://localhost:8000/docs" 
@@ -148,104 +193,56 @@ function App() {
         </div>
       </nav>
 
-      {/* Hero 区域 */}
-      <section className="relative py-16 sm:py-24 px-4 sm:px-6">
+      {/* Hero */}
+      <section className="py-12 sm:py-16 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 badge-soft mb-6">
             <span className="text-sm">✨</span>
             <span>v0.1.0 MVP</span>
           </div>
           
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4">
             <span className="gradient-text">智能测试数据</span>
-            <br />
-            <span className="text-gray-800">一键生成</span>
+            <span className="text-gray-800"> 一键生成</span>
           </h2>
           
-          <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-8">
-            手机号、邮箱、身份证号...告别手写 SQL 和复制粘贴，
-            <span className="text-pink-500 font-medium">让造数据成为享受</span>
+          <p className="text-base text-gray-500 max-w-xl mx-auto">
+            手机号、邮箱、身份证、IP、地址、银行卡...告别手写 SQL，让造数据成为享受
           </p>
-
-          <div className="flex flex-wrap justify-center gap-4">
-            <button 
-              onClick={() => document.getElementById('generator')?.scrollIntoView({ behavior: 'smooth' })}
-              className="btn-primary flex items-center gap-2"
-            >
-              <Sparkles className="w-4 h-4" />
-              立即开始
-            </button>
-            <a 
-              href="http://localhost:8000/docs"
-              target="_blank"
-              className="btn-secondary flex items-center gap-2"
-            >
-              <Settings className="w-4 h-4" />
-              API 文档
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* 功能特性 */}
-      <section id="features" className="py-12 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="card-clay p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-gradient-to-br from-pink-400 to-purple-400 rounded-xl">
-                  <Wand2 className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="font-bold text-gray-800">自定义规则</h3>
-              </div>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                支持正则表达式，自由定义数据格式，满足各种复杂场景
-              </p>
-              <div className="mt-4 flex items-center text-xs text-pink-500 font-medium">
-                即将推出 <ChevronRight className="w-3 h-3 ml-1" />
-              </div>
-            </div>
-
-            <div className="card-clay p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-gradient-to-br from-cyan-400 to-blue-400 rounded-xl">
-                  <Database className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="font-bold text-gray-800">数据库逆向</h3>
-              </div>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                连接数据库，自动识别表结构，智能生成关联数据
-              </p>
-              <div className="mt-4 flex items-center text-xs text-cyan-500 font-medium">
-                Phase 2 <ChevronRight className="w-3 h-3 ml-1" />
-              </div>
-            </div>
-
-            <div className="card-clay p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-gradient-to-br from-purple-400 to-indigo-400 rounded-xl">
-                  <Sparkles className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="font-bold text-gray-800">AI 智能推断</h3>
-              </div>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                输入需求描述，AI 自动推断数据规则，一句话搞定
-              </p>
-              <div className="mt-4 flex items-center text-xs text-purple-500 font-medium">
-                敬请期待 <ChevronRight className="w-3 h-3 ml-1" />
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
       {/* 生成器 */}
-      <section id="generator" className="py-12 px-4 sm:px-6">
+      <section id="generator" className="pb-12 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
           {/* 配置卡片 */}
           <div className="card-clay p-6 sm:p-8 mb-6">
+            {/* 数据类型选择 */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                选择数据类型
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {DATA_TYPES.map(type => (
+                  <button
+                    key={type.key}
+                    onClick={() => toggleType(type.key)}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                      selectedTypes.includes(type.key)
+                        ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg'
+                        : 'bg-white border-2 border-pink-200 text-gray-600 hover:border-pink-300'
+                    }`}
+                  >
+                    {type.icon}
+                    {type.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 数量和生成按钮 */}
             <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
-              <div className="flex-1 w-full">
+              <div className="flex-1 w-full sm:max-w-[200px]">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   生成数量
                 </label>
@@ -257,13 +254,13 @@ function App() {
                   max={1000}
                   className="input-soft text-center text-lg font-semibold"
                 />
-                <p className="text-xs text-gray-400 mt-1.5">支持 1-1000 条数据</p>
+                <p className="text-xs text-gray-400 mt-1.5">支持 1-1000 条</p>
               </div>
               
               <button 
                 onClick={handleGenerate}
-                disabled={isGenerating}
-                className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2 disabled:opacity-70"
+                disabled={isGenerating || selectedTypes.length === 0}
+                className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isGenerating ? (
                   <>
@@ -284,11 +281,7 @@ function App() {
               <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-red-800">生成失败</p>
-                  <p className="text-sm text-red-600 mt-1">{error}</p>
-                  <p className="text-xs text-red-500 mt-2">
-                    请确保后端服务正在运行：<code className="bg-red-100 px-1.5 py-0.5 rounded">uvicorn testdata_factory.api:app --reload --port 8000</code>
-                  </p>
+                  <p className="text-sm text-red-600">{error}</p>
                 </div>
               </div>
             )}
@@ -301,7 +294,7 @@ function App() {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 sm:p-6 border-b border-pink-100/50 bg-gradient-to-r from-pink-50/50 to-purple-50/50">
                 <div>
                   <h3 className="font-bold text-gray-800">生成结果</h3>
-                  <p className="text-sm text-gray-500 mt-0.5">已生成 {data.length} 条数据</p>
+                  <p className="text-sm text-gray-500 mt-0.5">已生成 {data.length} 条数据，{columns.length} 个字段</p>
                 </div>
                 
                 <div className="flex flex-wrap gap-2">
@@ -343,32 +336,21 @@ function App() {
                 <table className="table-soft">
                   <thead>
                     <tr>
-                      <th>
-                        <div className="flex items-center gap-2">
-                          <Phone className="w-4 h-4" />
-                          手机号
-                        </div>
-                      </th>
-                      <th>
-                        <div className="flex items-center gap-2">
-                          <Mail className="w-4 h-4" />
-                          邮箱
-                        </div>
-                      </th>
-                      <th>
-                        <div className="flex items-center gap-2">
-                          <CreditCard className="w-4 h-4" />
-                          身份证号
-                        </div>
-                      </th>
+                      {columns.map(col => (
+                        <th key={col}>
+                          {TYPE_LABELS[col] || col}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
                     {data.map((row, index) => (
                       <tr key={index}>
-                        <td className="font-mono text-sm">{row.phone || '-'}</td>
-                        <td className="text-sm">{row.email || '-'}</td>
-                        <td className="font-mono text-sm">{row.id_card || '-'}</td>
+                        {columns.map(col => (
+                          <td key={col} className={col === 'url' ? 'max-w-[200px] truncate' : ''}>
+                            {row[col] || '-'}
+                          </td>
+                        ))}
                       </tr>
                     ))}
                   </tbody>
@@ -376,24 +358,40 @@ function App() {
               </div>
             </div>
           )}
+
+          {/* 功能预告 */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="card-clay p-5">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-gradient-to-br from-pink-400 to-purple-400 rounded-lg">
+                  <Wand2 className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="font-bold text-gray-800">自定义规则</h3>
+              </div>
+              <p className="text-sm text-gray-500">支持正则表达式，自由定义数据格式</p>
+              <div className="mt-2 text-xs text-pink-500 font-medium">即将推出 →</div>
+            </div>
+
+            <div className="card-clay p-5">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-gradient-to-br from-cyan-400 to-blue-400 rounded-lg">
+                  <Database className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="font-bold text-gray-800">数据库逆向</h3>
+              </div>
+              <p className="text-sm text-gray-500">连接数据库，自动生成关联数据</p>
+              <div className="mt-2 text-xs text-cyan-500 font-medium">Phase 2 →</div>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* 页脚 */}
-      <footer className="border-t border-pink-100/50 bg-white/50 py-8 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-gradient-to-br from-pink-400 to-purple-400 rounded-lg">
-                <Sparkles className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-sm font-medium text-gray-600">TestData Factory</span>
-            </div>
-            
-            <p className="text-sm text-gray-400">
-              Made with <span className="text-pink-400">💖</span> by 知微 & 千机
-            </p>
-          </div>
+      <footer className="border-t border-pink-100/50 bg-white/50 py-6 px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto text-center">
+          <p className="text-sm text-gray-400">
+            Made with <span className="text-pink-400">💖</span> by 知微 & 千机
+          </p>
         </div>
       </footer>
     </div>
