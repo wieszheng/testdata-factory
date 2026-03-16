@@ -7,7 +7,7 @@ import asyncio
 
 from ..database import DatabaseParser, DatabaseConfig, get_column_generator
 
-router = APIRouter(prefix="/database", tags=["database"])
+router = APIRouter(tags=["database"])
 
 
 # ===== 请求/响应模型 =====

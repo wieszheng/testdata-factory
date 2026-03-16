@@ -7,7 +7,7 @@ import {
   Server, ChevronRight, X, Loader2, CheckCircle, XCircle
 } from 'lucide-react'
 
-const API_BASE = 'http://localhost:8000/api'
+const API_BASE = 'http://localhost:8001/api'
 
 // Toast 组件
 function Toast({ message, type, onClose }: { message: string; type: 'success' | 'error'; onClose: () => void }) {
