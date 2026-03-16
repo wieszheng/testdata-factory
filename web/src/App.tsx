@@ -7,7 +7,6 @@ import {
   Server, ChevronRight, X, Loader2, FileCode, Sun, Moon
 } from 'lucide-react'
 import { ToastProvider, useToast } from './components/ui/toast-provider'
-import { Card, CardHeader, CardTitle, CardContent } from './components/ui/card'
 
 const API_BASE = 'http://localhost:8001/api'
 
@@ -317,24 +316,29 @@ ${values.join(',\n')};`
               </div>
             </div>
 
-            {/* 自定义正则规则 - 使用 shadcn/ui 风格 */}
+            {/* 自定义正则规则 - 使用 div 替代 Card 组件 */}
             <div className="mb-3">
-              <Card className={`overflow-hidden ${isDark ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'}`}>
-                <CardHeader className={`p-3 pb-2 ${isDark ? 'hover:bg-white/5' : 'hover:bg-gray-100'} cursor-pointer transition-colors`} onClick={() => setShowRegex(!showRegex)}>
-                  <CardTitle className={`flex items-center justify-between text-[11px] ${isDark ? 'text-[#5a5eff]' : 'text-[#4a3df0]'}`}>
-                    <div className="flex items-center gap-2">
-                      <Code className="w-3.5 h-3.5" />
-                      自定义正则规则
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-normal ${isDark ? 'bg-white/10 text-[#94a3b8]' : 'bg-gray-200 text-gray-500'}`}>
-                        高级
-                      </span>
-                    </div>
-                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showRegex ? 'rotate-180' : ''}`} />
-                  </CardTitle>
-                </CardHeader>
+              <div className={`rounded-lg overflow-hidden ${isDark ? 'bg-white/5 border border-white/10' : 'bg-gray-50 border border-gray-200'}`}>
+                <button 
+                  onClick={() => setShowRegex(!showRegex)} 
+                  className={`w-full flex items-center justify-between px-3 py-2.5 text-[11px] font-medium transition-colors ${
+                    isDark 
+                      ? 'text-[#5a5eff] hover:bg-white/5' 
+                      : 'text-[#4a3df0] hover:bg-gray-100'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Code className="w-3.5 h-3.5" />
+                    自定义正则规则
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-normal ${isDark ? 'bg-white/10 text-[#94a3b8]' : 'bg-gray-200 text-gray-500'}`}>
+                      高级
+                    </span>
+                  </div>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showRegex ? 'rotate-180' : ''}`} />
+                </button>
                 
                 {showRegex && (
-                  <CardContent className={`space-y-3 p-3 pt-2 border-t ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
+                  <div className={`p-3 space-y-3 border-t ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <label className={`text-[10px] font-medium ${isDark ? 'text-[#94a3b8]' : 'text-gray-600'}`}>
@@ -363,7 +367,7 @@ ${values.join(',\n')};`
                             const t = templates.find(t => t.pattern === e.target.value); 
                             if (t) setRegexName(t.name);
                           }} 
-                          className={`h-8 text-[10px] rounded-md border px-2.5 w-full transition-colors appearance-none cursor-pointer ${
+                          className={`h-8 text-[10px] rounded-md border px-2.5 w-full transition-colors ${
                             isDark 
                               ? 'bg-white/5 border-white/10 text-white' 
                               : 'bg-white border-gray-300 text-gray-900'
@@ -406,9 +410,9 @@ ${values.join(',\n')};`
                       <Wand2 className="w-3 h-3" />
                       根据正则生成数据
                     </button>
-                  </CardContent>
+                  </div>
                 )}
-              </Card>
+              </div>
             </div>
 
             <div className={`mb-3 h-px ${isDark ? 'bg-gradient-to-r from-transparent via-[#ff6b4a]/50 to-transparent' : 'bg-gray-200'}`} />
