@@ -45,18 +45,18 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ toasts, toast, dismiss }}>
       {children}
       {/* Toast 容器 */}
-      <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2 max-w-sm">
+      <div className="fixed top-3 right-3 z-[100] flex flex-col gap-1.5 max-w-xs">
         {toasts.map((t) => (
           <Toast
             key={t.id}
             variant={t.variant}
             className="animate-in slide-in-from-right-full"
           >
-            <div className="flex items-start gap-3">
+            <div className="flex items-center gap-2">
               <ToastIcon variant={t.variant} />
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 {t.title && <ToastTitle>{t.title}</ToastTitle>}
-                <ToastDescription>{t.description}</ToastDescription>
+                <ToastDescription className="truncate">{t.description}</ToastDescription>
               </div>
             </div>
             <ToastClose onClick={() => dismiss(t.id)} />
