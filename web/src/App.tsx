@@ -309,7 +309,7 @@ ${values.join(',\n')};`
               <div className="flex flex-wrap gap-1">
                 {DATA_TYPES.map(type => (
                   <button key={type.key} onClick={() => toggleType(type.key)}
-                    className={`text-[10px] py-1 px-2 rounded transition-colors ${
+                    className={`text-[10px] py-1.5 px-2.5 rounded transition-colors ${
                       selectedTypes.includes(type.key) 
                         ? isDark 
                           ? 'bg-gradient-to-r from-[#ff6b4a]/20 to-[#5a5eff]/20 border border-[#ff6b4a]/40 text-white' 
