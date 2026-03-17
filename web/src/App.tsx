@@ -61,7 +61,17 @@ function AppContent() {
   const [enableValidate, setEnableValidate] = useState(true)
   const [enableDedup, setEnableDedup] = useState(false)
   
-  // 行业模板选择
+  // 行业模板字段到数据类型的映射
+  const TEMPLATE_FIELD_TYPES: Record<string, string[]> = {
+    user_profile: ['username', 'password', 'email', 'phone', 'name', 'id_card', 'address', 'datetime'],
+    order: ['order_id', 'uuid', 'sentence', 'price', 'integer', 'price', 'status', 'datetime', 'datetime'],
+    product: ['uuid', 'sentence', 'category', 'company', 'price', 'integer', 'color', 'url'],
+    employee: ['uuid', 'name', 'gender', 'phone', 'email', 'department', 'position', 'salary', 'date'],
+    finance: ['uuid', 'price', 'currency', 'transaction_type', 'bank_card', 'datetime', 'status'],
+    logistics: ['tracking_no', 'order_id', 'name', 'phone', 'address', 'name', 'phone', 'address', 'status', 'datetime'],
+    article: ['uuid', 'sentence', 'name', 'paragraph', 'category', 'tags', 'integer', 'integer', 'datetime'],
+    hotel: ['uuid', 'company', 'room_type', 'price', 'integer', 'address', 'phone', 'rating'],
+  }
   const [selectedTemplate, setSelectedTemplate] = useState<string>('')
   const [industryTemplates, setIndustryTemplates] = useState<Record<string, {name: string, description: string, fields: string[]}>>({})
   
@@ -385,6 +395,10 @@ ${values.join(',\n')};`
                       key={key}
                       onClick={async () => {
                         setIsGenerating(true)
+                        // 选中该模板对应的数据类型
+                        const fieldTypes = TEMPLATE_FIELD_TYPES[key] || []
+                        setSelectedTypes(fieldTypes)
+                        setSelectedTemplate(key)
                         try {
                           const response = await fetch(`${API_BASE}/industry/templates/generate`, {
                             method: 'POST',
@@ -397,7 +411,6 @@ ${values.join(',\n')};`
                             setColumns(result.fields)
                             setSelectedTypes([])
                             setRegexData([])
-                            setSelectedTemplate(key)
                             toast({ description: `已生成 ${result.count} 条${result.template}数据`, variant: 'success' })
                           } else {
                             setError(result.message || '生成失败')
