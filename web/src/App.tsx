@@ -124,9 +124,19 @@ function AppContent() {
   }, [])
 
   const toggleType = (key: string) => {
-    setSelectedTypes(prev => 
-      prev.includes(key) ? prev.filter(t => t !== key) : [...prev, key]
-    )
+    const newTypes = selectedTypes.includes(key) 
+      ? selectedTypes.filter(t => t !== key)
+      : [...selectedTypes, key]
+    setSelectedTypes(newTypes)
+    
+    // 如果当前选中的模板不包含新选中的类型，取消模板选中
+    if (selectedTemplate) {
+      const templateTypes = TEMPLATE_FIELD_TYPES[selectedTemplate] || []
+      const hasMatch = newTypes.some(t => templateTypes.includes(t))
+      if (!hasMatch) {
+        setSelectedTemplate('')
+      }
+    }
   }
 
   const handleGenerate = async () => {
@@ -394,11 +404,12 @@ ${values.join(',\n')};`
                     <button 
                       key={key}
                       onClick={() => {
+                        // 先清空之前的数据
+                        setData([])
                         // 选中该模板对应的数据类型
                         const fieldTypes = TEMPLATE_FIELD_TYPES[key] || []
                         setSelectedTypes(fieldTypes)
                         setSelectedTemplate(key)
-                        setData([]) // 清空之前的数据
                       }}
                       className={`type-btn text-xs ${selectedTemplate === key ? 'active' : ''}`}
                     >
