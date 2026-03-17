@@ -478,3 +478,146 @@ async def generate_from_template(request: TemplateGenerateRequest):
         "fields": field_names,
         "data": data
     }
+
+
+# ===== 批量和异步生成 =====
+
+class BatchGenerateRequest(BaseModel):
+    """批量生成请求"""
+    batches: list[GenerateRequest] = Field(..., description="批量生成配置列表")
+
+
+@router.post("/generate/batch")
+async def batch_generate(request: BatchGenerateRequest):
+    """批量生成多组数据
+    
+    一次请求生成多组不同的数据
+    
+    示例请求:
+    {
+      "batches": [
+        {"count": 10, "types": ["phone"]},
+        {"count": 5, "types": ["email", "name"]},
+        {"count": 20, "types": ["id_card"]}
+      ]
+    }
+    """
+    results = []
+    for i, batch in enumerate(request.batches):
+        # 调用生成逻辑
+        batch_data = await generate_data(batch)
+        results.append({
+            "batch_index": i,
+            "data": batch_data.data,
+            "count": batch_data.count,
+            "types": batch_data.types
+        })
+    
+    return {
+        "success": True,
+        "batch_count": len(results),
+        "total_records": sum(r["count"] for r in results),
+        "results": results
+    }
+
+
+class AsyncGenerateRequest(BaseModel):
+    """异步生成请求（大数据量）"""
+    count: int = Field(default=100, ge=1, le=100000, description="生成数量")
+    types: list[str] = Field(default=["phone", "email"], description="数据类型")
+    validate: bool = Field(default=True)
+    dedup: bool = Field(default=False)
+    callback_url: Optional[str] = Field(default=None, description="完成后回调URL")
+
+
+import asyncio
+import uuid as uuid_module
+
+# 存储异步任务状态
+_async_tasks: dict[str, dict] = {}
+
+
+@router.post("/generate/async")
+async def async_generate(request: AsyncGenerateRequest):
+    """异步生成大数据量
+    
+    适用于生成大量数据（>1000条），立即返回任务ID，
+    后台处理完成后可通过 callback_url 回调或主动查询状态
+    
+    返回任务ID，可通过 /api/generate/async/status/{task_id} 查询状态
+    """
+    task_id = str(uuid_module.uuid4())[:8]
+    
+    # 创建任务记录
+    _async_tasks[task_id] = {
+        "status": "pending",
+        "progress": 0,
+        "total": request.count,
+        "result": None,
+        "error": None
+    }
+    
+    # 启动后台任务
+    asyncio.create_task(_run_async_generate(task_id, request))
+    
+    return {
+        "success": True,
+        "task_id": task_id,
+        "status": "pending",
+        "message": f"任务已创建，预计生成 {request.count} 条数据"
+    }
+
+
+async def _run_async_generate(task_id: str, request: AsyncGenerateRequest):
+    """后台异步生成任务"""
+    try:
+        task = _async_tasks[task_id]
+        task["status"] = "running"
+        
+        # 分批处理，避免内存溢出
+        batch_size = 1000
+        all_data = []
+        
+        for i in range(0, request.count, batch_size):
+            current_count = min(batch_size, request.count - i)
+            req = GenerateRequest(
+                count=current_count,
+                types=request.types,
+                validate=request.validate,
+                dedup=request.dedup
+            )
+            result = await generate_data(req)
+            all_data.extend(result.data)
+            
+            # 更新进度
+            task["progress"] = len(all_data)
+        
+        task["status"] = "completed"
+        task["progress"] = request.count
+        task["result"] = {
+            "count": len(all_data),
+            "types": request.types,
+            "data": all_data[:100]  # 只返回前100条，实际应存文件
+        }
+        
+    except Exception as e:
+        _async_tasks[task_id]["status"] = "failed"
+        _async_tasks[task_id]["error"] = str(e)
+
+
+@router.get("/generate/async/status/{task_id}")
+async def get_async_status(task_id: str):
+    """查询异步任务状态"""
+    task = _async_tasks.get(task_id)
+    if not task:
+        return {"success": False, "message": "任务不存在"}
+    
+    return {
+        "success": True,
+        "task_id": task_id,
+        "status": task["status"],
+        "progress": task["progress"],
+        "total": task["total"],
+        "result": task.get("result"),
+        "error": task.get("error")
+    }
