@@ -61,6 +61,10 @@ function AppContent() {
   const [enableValidate, setEnableValidate] = useState(true)
   const [enableDedup, setEnableDedup] = useState(false)
   
+  // 行业模板选择
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [industryTemplates, setIndustryTemplates] = useState<Record<string, {name: string, description: string, fields: string[]}>>({})
+  
   // 自定义正则模态框
   const [showRegexModal, setShowRegexModal] = useState(false)
   const [regexPattern, setRegexPattern] = useState('')
@@ -100,6 +104,12 @@ function AppContent() {
     fetch(`${API_BASE}/templates`)
       .then(res => res.json())
       .then(result => setTemplates(result.templates || []))
+      .catch(() => {})
+    
+    // 加载行业模板
+    fetch(`${API_BASE}/industry/templates`)
+      .then(res => res.json())
+      .then(result => setIndustryTemplates(result.templates || {}))
       .catch(() => {})
   }, [])
 
@@ -365,6 +375,48 @@ ${values.join(',\n')};`
       <section className="pb-8 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="glass-card p-3 sm:p-4 mb-3">
+            {/* 行业模板选择 */}
+            <div className="mb-3">
+              <label className={`block text-[10px] font-medium mb-1.5 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>选择行业模板（可选）</label>
+              <select 
+                value={selectedTemplate} 
+                onChange={async (e) => {
+                  const templateName = e.target.value
+                  setSelectedTemplate(templateName)
+                  if (templateName) {
+                    setIsGenerating(true)
+                    try {
+                      const response = await fetch(`${API_BASE}/industry/templates/generate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ template_name: templateName, count, validate: enableValidate, dedup: enableDedup })
+                      })
+                      const result = await response.json()
+                      if (result.success) {
+                        setData(result.data)
+                        setColumns(result.fields)
+                        setSelectedTypes([])
+                        setRegexData([])
+                        toast({ description: `已生成 ${result.count} 条${result.template}数据`, variant: 'success' })
+                      } else {
+                        setError(result.message || '生成失败')
+                      }
+                    } catch {
+                      setError('生成失败')
+                    } finally {
+                      setIsGenerating(false)
+                    }
+                  }
+                }}
+                className={`w-full text-[10px] py-2 px-3 rounded-lg ${isDark ? 'input-glass' : 'border border-gray-300 bg-white'}`}
+              >
+                <option value="">-- 选择行业模板 --</option>
+                {Object.entries(industryTemplates).map(([key, t]) => (
+                  <option key={key} value={key}>{t.name} - {t.description}</option>
+                ))}
+              </select>
+            </div>
+
             {/* 数据类型选择 */}
             <div className="mb-3">
               <label className={`block text-[10px] font-medium mb-1.5 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>选择数据类型</label>
