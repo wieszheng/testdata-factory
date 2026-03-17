@@ -24,6 +24,7 @@ from ..generators.text import generate_sentence, generate_paragraph
 from ..generators.regex import generate_from_regex, list_templates
 from ..validators import BUILTIN_VALIDATORS, validate_field, SUPPORTED_VALIDATORS
 from ..dedup import get_dedup_manager, reset_dedup
+from ..exporters.excel_exporter import export_to_excel, export_single_column_to_excel
 
 router = APIRouter()
 
@@ -282,6 +283,38 @@ async def reset_dedup_manager():
     """重置去重管理器"""
     reset_dedup()
     return {"success": True, "message": "去重记录已清空"}
+
+
+@router.post("/export/excel")
+async def export_excel(request: GenerateRequest):
+    """导出为 Excel 格式"""
+    # 先调用 generate 生成数据
+    request_copy = GenerateRequest(
+        count=request.count,
+        types=request.types,
+        custom_rules=request.custom_rules,
+        validate=request.validate,
+        dedup=request.dedup
+    )
+    result = await generate_data(request_copy)
+    
+    if not result.data:
+        return {"success": False, "message": "没有数据可导出"}
+    
+    try:
+        excel_bytes = export_to_excel(result.data, result.types)
+        # 返回 base64 编码的 Excel 数据
+        import base64
+        excel_b64 = base64.b64encode(excel_bytes).decode('utf-8')
+        return {
+            "success": True,
+            "filename": f"test_data_{result.count}_{result.types[0] if result.types else 'export'}.xlsx",
+            "data": excel_b64
+        }
+    except ImportError as e:
+        return {"success": False, "message": str(e)}
+    except Exception as e:
+        return {"success": False, "message": f"导出失败: {str(e)}"}
 
 
 @router.get("/health")

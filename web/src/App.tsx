@@ -224,6 +224,45 @@ function AppContent() {
     }
   }
 
+  const handleExportExcel = async () => {
+    if (data.length === 0 && regexData.length === 0) {
+      toast({ description: '没有数据可导出', variant: 'warning' })
+      return
+    }
+    setIsGenerating(true)
+    try {
+      const response = await fetch(`${API_BASE}/export/excel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          count, 
+          types: selectedTypes,
+          custom_rules: savedRegexes.map(r => ({ name: r.name, pattern: r.pattern }))
+        }),
+      })
+      const result = await response.json()
+      if (result.success) {
+        // 解码 base64 并下载
+        const binaryString = atob(result.data)
+        const bytes = new Uint8Array(binaryString.length)
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i)
+        }
+        const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a'); a.href = url; a.download = result.filename; a.click()
+        URL.revokeObjectURL(url)
+        toast({ description: 'Excel 文件已下载', variant: 'success' })
+      } else {
+        setError(result.message || '导出失败')
+      }
+    } catch {
+      setError('导出失败')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
   // SQL 导出相关
   const [showSqlModal, setShowSqlModal] = useState(false)
   const [sqlTableName, setSqlTableName] = useState('test_table')
@@ -313,7 +352,7 @@ ${values.join(',\n')};`
       <section className={`py-4 px-4 ${isDark ? '' : 'bg-gray-50'}`}>
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-xl font-bold mb-1"><span className="gradient-text-warm">测试数据</span><span className={isDark ? 'text-white' : 'text-gray-900'}> 一键生成</span></h2>
-          <p className={`text-xs ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>17 种数据类型 · 自定义正则 · 数据库逆向 · 导出 CSV/JSON/SQL</p>
+          <p className={`text-xs ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>18 种数据类型 · 自定义正则 · 数据库逆向 · 导出 CSV/JSON/SQL/Excel</p>
         </div>
       </section>
 
@@ -592,6 +631,7 @@ ${values.join(',\n')};`
                   <button onClick={handleCopy} className={`py-1 px-1.5 rounded transition-colors ${isDark ? 'btn-secondary' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`}>{copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}</button>
                   <button onClick={handleExportCSV} className={`py-1 px-1.5 rounded transition-colors ${isDark ? 'btn-secondary' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`} title="导出CSV"><Download className="w-3 h-3" /></button>
                   <button onClick={handleExportJSON} className={`py-1 px-1.5 rounded transition-colors ${isDark ? 'btn-secondary' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`} title="导出JSON"><FileJson className="w-3 h-3" /></button>
+                  <button onClick={handleExportExcel} className={`py-1 px-1.5 rounded transition-colors ${isDark ? 'btn-secondary' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`} title="导出Excel"><Table className="w-3 h-3" /></button>
                   <button onClick={handleExportSQL} className={`py-1 px-1.5 rounded transition-colors ${isDark ? 'btn-secondary' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`} title="导出SQL"><FileCode className="w-3 h-3" /></button>
                 </div>
               </div>
