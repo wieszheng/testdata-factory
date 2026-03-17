@@ -64,6 +64,7 @@ function AppContent() {
   const [templates, setTemplates] = useState<RegexTemplate[]>([])
   const [regexData, setRegexData] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<'table' | 'json'>('table')
+  const [searchQuery, setSearchQuery] = useState('')
   
   // 已保存的自定义规则
   interface SavedRegex {
@@ -465,8 +466,9 @@ ${values.join(',\n')};`
                 <input type="number" value={count} onChange={(e) => setCount(Math.max(1, Math.min(1000, parseInt(e.target.value) || 1)))} min={1} max={1000} className={`text-center text-xs font-semibold py-1 px-2 rounded w-16 ${isDark ? 'input-glass' : 'border border-gray-300 bg-white'}`} />
                 <span className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-400'}`}>条</span>
               </div>
-              <button onClick={handleGenerate} disabled={isGenerating || (selectedTypes.length === 0 && savedRegexes.length === 0)} className={`flex items-center justify-center gap-1 disabled:opacity-50 h-[28px] px-3 text-[10px] rounded font-medium ${isDark ? 'btn-primary' : 'bg-gradient-to-r from-[#ff6b4a] to-[#ff8f7a] text-white shadow hover:shadow-md transition-shadow'}`}>
-                {isGenerating ? <><div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />生成中</> : <><Sparkles className="w-3 h-3" />立即生成</>}
+              <button onClick={handleGenerate} disabled={isGenerating || (selectedTypes.length === 0 && savedRegexes.length === 0)} className={`flex items-center justify-center gap-1.5 disabled:opacity-50 h-[28px] px-4 py-1.5 text-[10px] rounded-full font-medium transition-all ${isDark ? 'btn-primary' : 'bg-gradient-to-r from-[#ff6b4a] to-[#ff8f7a] text-white shadow hover:shadow-md'}`}>
+                {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                {isGenerating ? '生成中...' : '立即生成'}
               </button>
             </div>
           </div>
