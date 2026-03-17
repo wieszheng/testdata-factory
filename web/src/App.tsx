@@ -376,46 +376,46 @@ ${values.join(',\n')};`
         <div className="max-w-4xl mx-auto">
           <div className="glass-card p-3 sm:p-4 mb-3">
             {/* 行业模板选择 */}
-            <div className="mb-3">
-              <label className={`block text-[10px] font-medium mb-1.5 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>选择行业模板（可选）</label>
-              <select 
-                value={selectedTemplate} 
-                onChange={async (e) => {
-                  const templateName = e.target.value
-                  setSelectedTemplate(templateName)
-                  if (templateName) {
-                    setIsGenerating(true)
-                    try {
-                      const response = await fetch(`${API_BASE}/industry/templates/generate`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ template_name: templateName, count, validate: enableValidate, dedup: enableDedup })
-                      })
-                      const result = await response.json()
-                      if (result.success) {
-                        setData(result.data)
-                        setColumns(result.fields)
-                        setSelectedTypes([])
-                        setRegexData([])
-                        toast({ description: `已生成 ${result.count} 条${result.template}数据`, variant: 'success' })
-                      } else {
-                        setError(result.message || '生成失败')
-                      }
-                    } catch {
-                      setError('生成失败')
-                    } finally {
-                      setIsGenerating(false)
-                    }
-                  }
-                }}
-                className={`w-full text-[10px] py-2 px-3 rounded-lg ${isDark ? 'input-glass' : 'border border-gray-300 bg-white'}`}
-              >
-                <option value="">-- 选择行业模板 --</option>
-                {Object.entries(industryTemplates).map(([key, t]) => (
-                  <option key={key} value={key}>{t.name} - {t.description}</option>
-                ))}
-              </select>
-            </div>
+            {Object.keys(industryTemplates).length > 0 && (
+              <div className="mb-3">
+                <label className={`block text-[10px] font-medium mb-1.5 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>选择行业模板（可选）</label>
+                <div className="flex flex-wrap gap-1">
+                  {Object.entries(industryTemplates).map(([key, t]) => (
+                    <button 
+                      key={key}
+                      onClick={async () => {
+                        setIsGenerating(true)
+                        try {
+                          const response = await fetch(`${API_BASE}/industry/templates/generate`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ template_name: key, count, validate: enableValidate, dedup: enableDedup })
+                          })
+                          const result = await response.json()
+                          if (result.success) {
+                            setData(result.data)
+                            setColumns(result.fields)
+                            setSelectedTypes([])
+                            setRegexData([])
+                            setSelectedTemplate(key)
+                            toast({ description: `已生成 ${result.count} 条${result.template}数据`, variant: 'success' })
+                          } else {
+                            setError(result.message || '生成失败')
+                          }
+                        } catch {
+                          setError('生成失败')
+                        } finally {
+                          setIsGenerating(false)
+                        }
+                      }}
+                      className={`type-btn text-xs ${selectedTemplate === key ? 'active' : ''}`}
+                    >
+                      {t.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* 数据类型选择 */}
             <div className="mb-3">
