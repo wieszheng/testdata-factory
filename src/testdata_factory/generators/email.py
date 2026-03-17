@@ -4,6 +4,7 @@ import random
 from faker import Faker
 
 fake = Faker("zh_CN")
+fake_en = Faker("en_US")
 
 # 常见邮箱域名
 EMAIL_DOMAINS = [
@@ -31,9 +32,8 @@ def generate_email(domain: str | None = None) -> str:
     if domain is None:
         domain = random.choice(EMAIL_DOMAINS)
 
-    # 生成用户名：拼音 + 随机数字
-    # 使用 first_name() + last_name() 组合
-    name = f"{fake.last_name()}{fake.first_name()}".lower()
+    # 生成用户名：使用英文名字 + 随机数字，避免中文
+    name = f"{fake_en.last_name().lower()}{fake_en.first_name().lower()}".replace(" ", "")
     num = random.randint(1, 9999)
 
     return f"{name}{num}@{domain}"

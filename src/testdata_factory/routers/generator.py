@@ -120,7 +120,7 @@ class GenerateResponse(BaseModel):
         default=None,
         description="校验结果统计"
     )
-    dedup_info: Optional[Dict[str, int]] = Field(
+    dedup_info: Optional[Dict[str, Any]] = Field(
         default=None,
         description="去重统计"
     )
