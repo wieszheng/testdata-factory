@@ -107,6 +107,21 @@ function AppContent() {
   const [selectedTable, setSelectedTable] = useState('')
   const [dbError, setDbError] = useState<string | null>(null)
   const [dbSuccess, setDbSuccess] = useState<string | null>(null)
+  // 表结构预览
+  const [tableStructure, setTableStructure] = useState<{
+    table_name: string
+    columns: Array<{
+      name: string
+      data_type: string
+      is_nullable: boolean
+      is_primary_key: boolean
+      is_foreign_key: boolean
+      foreign_key_ref: string | null
+      column_comment: string | null
+      generator_type: string
+    }>
+  } | null>(null)
+  const [loadingStructure, setLoadingStructure] = useState(false)
   
   // Toast 提示
   const { toast } = useToast()
@@ -220,6 +235,57 @@ function AppContent() {
     } finally {
       setDbConnecting(false)
     }
+  }
+
+  // 获取表结构
+  const handleShowTableStructure = async (tableName: string) => {
+    setLoadingStructure(true); setTableStructure(null)
+    
+    try {
+      const response = await fetch(`${API_BASE}/database/table/${tableName}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dbConfig),
+      })
+      const result = await response.json()
+      
+      if (result.success && result.table) {
+        setTableStructure(result.table)
+        setSelectedTable(tableName)
+      } else {
+        toast({ description: '获取表结构失败', variant: 'error' })
+      }
+    } catch {
+      toast({ description: '获取表结构失败', variant: 'error' })
+    } finally {
+      setLoadingStructure(false)
+    }
+  }
+
+  // 从表结构生成数据
+  const handleDbGenerateFromStructure = async () => {
+    if (!selectedTable) return
+    setIsGenerating(true); setError(null)
+    
+    try {
+      const response = await fetch(`${API_BASE}/database/generate?table_name=${selectedTable}&count=${count}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dbConfig),
+      })
+      const result = await response.json()
+      
+      if (result.success) {
+        setData(result.data)
+        setColumns(result.columns)
+        setRegexData([])
+        setShowDbPanel(false)
+        setTableStructure(null)
+      } else {
+        setError('生成失败')
+      }
+    } catch { setError('生成失败') }
+    finally { setIsGenerating(false) }
   }
 
   const handleDbGenerate = async (tableName: string) => {
@@ -697,15 +763,77 @@ ${values.join(',\n')};`
                 {/* 表列表 */}
                 {dbTables.length > 0 && (
                   <div className="border border-[#ff6b4a]/20 rounded overflow-hidden">
-                    <div className="px-2 py-1 bg-gradient-to-r from-[#ff6b4a]/10 to-[#5a5eff]/10 text-[9px] text-[#94a3b8]">发现 {dbTables.length} 个表</div>
+                    <div className="px-2 py-1 bg-gradient-to-r from-[#ff6b4a]/10 to-[#5a5eff]/10 text-[9px] text-[#94a3b8]">发现 {dbTables.length} 个表（点击查看结构）</div>
                     <div className="max-h-[120px] overflow-y-auto">
                       {dbTables.map(table => (
-                        <button key={table} onClick={() => handleDbGenerate(table)}
-                          className="w-full px-2 py-1.5 text-left text-[10px] text-[#94a3b8] hover:bg-[#05c4a5]/10 hover:text-[#05c4a5] flex items-center justify-between border-t border-white/5">
+                        <button key={table} onClick={() => handleShowTableStructure(table)}
+                          className={`w-full px-2 py-1.5 text-left text-[10px] flex items-center justify-between border-t border-white/5 ${selectedTable === table ? 'bg-[#ff6b4a]/10 text-[#ff6b4a]' : 'text-[#94a3b8] hover:bg-[#05c4a5]/10 hover:text-[#05c4a5]'}`}>
                           <span className="truncate">{table}</span>
                           <ChevronRight className="w-3 h-3 flex-shrink-0" />
                         </button>
                       ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* 表结构预览 */}
+                {loadingStructure && (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="w-4 h-4 animate-spin text-[#ff6b4a]" />
+                    <span className="ml-2 text-[10px] text-[#94a3b8]">加载表结构...</span>
+                  </div>
+                )}
+                
+                {tableStructure && (
+                  <div className="border border-[#ff6b4a]/20 rounded overflow-hidden">
+                    <div className="px-2 py-1 bg-gradient-to-r from-[#ff6b4a]/10 to-[#5a5eff]/10 flex items-center justify-between">
+                      <span className="text-[10px] font-medium text-[#ff6b4a]">{tableStructure.table_name}</span>
+                      <button onClick={() => setTableStructure(null)} className="p-0.5 hover:bg-white/10 rounded">
+                        <X className="w-3 h-3 text-[#94a3b8]" />
+                      </button>
+                    </div>
+                    <div className="max-h-[200px] overflow-y-auto">
+                      <table className="w-full text-[9px]">
+                        <thead className={`sticky top-0 ${isDark ? 'bg-[#1a1f2e]' : 'bg-gray-100'}`}>
+                          <tr className="text-[#94a3b8]">
+                            <th className="px-2 py-1 text-left">字段</th>
+                            <th className="px-2 py-1 text-left">类型</th>
+                            <th className="px-2 py-1 text-center">必填</th>
+                            <th className="px-2 py-1 text-left">生成器</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {tableStructure.columns.map((col, i) => (
+                            <tr key={i} className={`border-t ${isDark ? 'border-white/5' : 'border-gray-100'}`}>
+                              <td className="px-2 py-1">
+                                <span className={col.is_primary_key ? 'text-[#ff6b4a] font-medium' : col.is_foreign_key ? 'text-[#5a5eff]' : isDark ? 'text-white' : 'text-gray-900'}>
+                                  {col.name}
+                                </span>
+                                {col.column_comment && (
+                                  <span className="ml-1 text-[8px] text-[#94a3b8]">({col.column_comment})</span>
+                                )}
+                              </td>
+                              <td className={`px-2 py-1 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>{col.data_type}</td>
+                              <td className="px-2 py-1 text-center">
+                                {!col.is_nullable && <span className="text-red-400">*</span>}
+                                {col.is_primary_key && <span className="ml-1 text-[#ff6b4a]">PK</span>}
+                                {col.is_foreign_key && <span className="ml-1 text-[#5a5eff]">FK</span>}
+                              </td>
+                              <td className="px-2 py-1">
+                                <span className="px-1 py-0.5 rounded bg-[#05c4a5]/10 text-[#05c4a5]">
+                                  {TYPE_LABELS[col.generator_type] || col.generator_type}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="px-2 py-1.5 border-t border-white/5">
+                      <button onClick={handleDbGenerateFromStructure} disabled={isGenerating}
+                        className="w-full py-1 bg-gradient-to-r from-[#ff6b4a] to-[#ff8f7a] text-white rounded text-[10px] font-medium disabled:opacity-50 flex items-center justify-center gap-1">
+                        {isGenerating ? <><Loader2 className="w-3 h-3 animate-spin" />生成中...</> : <><Sparkles className="w-3 h-3" />生成 {count} 条数据</>}
+                      </button>
                     </div>
                   </div>
                 )}
