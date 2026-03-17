@@ -5,6 +5,7 @@ import string
 from faker import Faker
 
 fake = Faker("zh_CN")
+fake_en = Faker("en_US")
 
 # 用户名前缀
 USERNAME_PREFIXES = ["user", "admin", "test", "demo", "member", "guest"]
@@ -24,7 +25,7 @@ def generate_username(style: str = "random") -> str:
         用户名
     """
     if style == "email_style":
-        name = fake.name_ascii().replace(" ", ".").lower()
+        name = f"{fake_en.first_name()}.{fake_en.last_name()}".lower()
         num = random.randint(1, 999)
         return f"{name}{num}"
     
@@ -34,7 +35,8 @@ def generate_username(style: str = "random") -> str:
         return f"{prefix}{num}"
     
     elif style == "pinyin":
-        name = fake.name_ascii().replace(" ", "").lower()
+        # 使用英文名代替
+        name = f"{fake_en.first_name()}_{fake_en.last_name()}".lower()
         return name
     
     else:

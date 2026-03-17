@@ -25,6 +25,7 @@ from ..generators.regex import generate_from_regex, list_templates
 from ..validators import BUILTIN_VALIDATORS, validate_field, SUPPORTED_VALIDATORS
 from ..dedup import get_dedup_manager, reset_dedup
 from ..exporters.excel_exporter import export_to_excel, export_single_column_to_excel
+from ..templates import list_templates, get_template, get_template_fields, INDUSTRY_TEMPLATES
 
 router = APIRouter()
 
@@ -321,3 +322,159 @@ async def export_excel(request: GenerateRequest):
 async def health_check():
     """健康检查"""
     return {"status": "ok"}
+
+
+# ===== 行业模板 API =====
+
+@router.get("/industry/templates")
+async def get_industry_templates():
+    """获取行业模板列表"""
+    return {
+        "templates": list_templates(),
+        "count": len(INDUSTRY_TEMPLATES)
+    }
+
+
+@router.get("/industry/templates/{template_name}")
+async def get_template_detail(template_name: str):
+    """获取模板详情"""
+    template = get_template(template_name)
+    if not template:
+        return {"success": False, "message": "模板不存在"}
+    return {
+        "success": True,
+        "template": {
+            "name": template.name,
+            "description": template.description,
+            "fields": template.fields
+        }
+    }
+
+
+class TemplateGenerateRequest(BaseModel):
+    """行业模板生成请求"""
+    template_name: str = Field(..., description="模板名称")
+    count: int = Field(default=10, ge=1, le=1000, description="生成数量")
+    validate: bool = Field(default=True, description="是否启用校验")
+    dedup: bool = Field(default=False, description="是否启用去重")
+
+
+@router.post("/industry/templates/generate")
+async def generate_from_template(request: TemplateGenerateRequest):
+    """根据行业模板生成数据"""
+    template = get_template(request.template_name)
+    if not template:
+        return {"success": False, "message": "模板不存在"}
+    
+    # 字段类型映射到生成器
+    type_to_generator = {
+        "uuid": generate_uuid,
+        "username": generate_username,
+        "password": generate_password,
+        "email": generate_email,
+        "phone": generate_phone,
+        "name": generate_name,
+        "id_card": generate_id_card,
+        "address": generate_address,
+        "datetime": generate_datetime,
+        "date": generate_date,
+        "order_id": generate_order_id,
+        "price": generate_price,
+        "sentence": generate_sentence,
+        "paragraph": generate_paragraph,
+        "company": generate_company,
+        "position": generate_position,
+        "salary": generate_salary,
+        "color": generate_color,
+        "url": generate_url,
+        "bank_card": generate_bank_card,
+    }
+    
+    # 扩展映射 - 添加不存在的生成器
+    def gen_integer():
+        import random
+        return str(random.randint(1, 10000))
+    
+    def gen_gender():
+        import random
+        return random.choice(["男", "女", "未知"])
+    
+    def gen_department():
+        import random
+        return random.choice(["技术部", "市场部", "运营部", "财务部", "人力资源部", "行政部"])
+    
+    def gen_category():
+        import random
+        return random.choice(["电子产品", "服装", "食品", "图书", "运动", "家居", "美妆"])
+    
+    def gen_status():
+        import random
+        return random.choice(["待支付", "已支付", "已完成", "已取消", "退款中"])
+    
+    def gen_currency():
+        import random
+        return random.choice(["CNY", "USD", "EUR", "JPY"])
+    
+    def gen_transaction_type():
+        import random
+        return random.choice(["收入", "支出", "转账", "退款"])
+    
+    def gen_tracking_no():
+        import random
+        return f"YT{random.randint(100000000000, 999999999999)}"
+    
+    def gen_logistics_status():
+        import random
+        return random.choice(["待揽收", "运输中", "已到达", "派送中", "已签收"])
+    
+    def gen_room_type():
+        import random
+        return random.choice(["标准间", "大床房", "豪华间", "套房", "总统套房"])
+    
+    def gen_rating():
+        import random
+        return str(round(random.uniform(3.5, 5.0), 1))
+    
+    def gen_tags():
+        import random
+        all_tags = ["热门", "新品", "推荐", "特价", "限时", "爆款"]
+        return ",".join(random.sample(all_tags, k=random.randint(1, 3)))
+    
+    type_to_generator.update({
+        "integer": gen_integer,
+        "gender": gen_gender,
+        "department": gen_department,
+        "category": gen_category,
+        "status": gen_status,
+        "currency": gen_currency,
+        "transaction_type": gen_transaction_type,
+        "tracking_no": gen_tracking_no,
+        "logistics_status": gen_logistics_status,
+        "room_type": gen_room_type,
+        "rating": gen_rating,
+        "tags": gen_tags,
+    })
+    
+    # 去重管理器
+    dedup_mgr = get_dedup_manager()
+    if request.dedup:
+        dedup_mgr.clear()
+    
+    data = []
+    field_names = [f["name"] for f in template.fields]
+    field_types = [f["type"] for f in template.fields]
+    
+    for _ in range(request.count):
+        row = {}
+        for fname, ftype in zip(field_names, field_types):
+            gen = type_to_generator.get(ftype, generate_sentence)
+            row[fname] = gen()
+        data.append(row)
+    
+    return {
+        "success": True,
+        "template": template.name,
+        "count": len(data),
+        "fields": field_names,
+        "data": data
+    }
