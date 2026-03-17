@@ -149,7 +149,11 @@ testdata-factory/
 
 ### 界面展示
 
-![主界面](./docs/homepage.png)
+**深色主题**
+![深色主题](./docs/homepage.png)
+
+**亮色主题**
+![亮色主题](./docs/homepage-light.png)
 
 ### 功能演示
 
