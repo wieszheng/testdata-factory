@@ -124,16 +124,17 @@ function AppContent() {
   }, [])
 
   const toggleType = (key: string) => {
-    const newTypes = selectedTypes.includes(key) 
+    // 判断是选中还是取消
+    const wasSelected = selectedTypes.includes(key)
+    const newTypes = wasSelected 
       ? selectedTypes.filter(t => t !== key)
       : [...selectedTypes, key]
     setSelectedTypes(newTypes)
     
-    // 如果当前选中的模板不包含新选中的类型，取消模板选中
-    if (selectedTemplate) {
+    // 如果是取消选中，且取消的类型在当前模板中，取消模板选中
+    if (wasSelected && selectedTemplate) {
       const templateTypes = TEMPLATE_FIELD_TYPES[selectedTemplate] || []
-      const hasMatch = newTypes.some(t => templateTypes.includes(t))
-      if (!hasMatch) {
+      if (templateTypes.includes(key)) {
         setSelectedTemplate('')
       }
     }
