@@ -130,30 +130,10 @@ function AppContent() {
   }
 
   const handleGenerate = async () => {
-    if (selectedTypes.length === 0 && savedRegexes.length === 0 && !selectedTemplate) { setError('请至少选择一种数据类型或行业模板'); return }
+    if (selectedTypes.length === 0 && savedRegexes.length === 0) { setError('请至少选择一种数据类型或添加自定义规则'); return }
     setIsGenerating(true); setError(null)
     
     try {
-      // 如果选中了行业模板，使用模板API
-      if (selectedTemplate) {
-        const response = await fetch(`${API_BASE}/industry/templates/generate`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ template_name: selectedTemplate, count, validate: enableValidate, dedup: enableDedup })
-        })
-        const result = await response.json()
-        if (result.success) {
-          setData(result.data)
-          setColumns(result.fields)
-          toast({ description: `已生成 ${result.count} 条${result.template}数据`, variant: 'success' })
-        } else {
-          setError(result.message || '生成失败')
-        }
-        setIsGenerating(false)
-        return
-      }
-      
-      // 普通数据类型生成
       const response = await fetch(`${API_BASE}/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -413,33 +393,12 @@ ${values.join(',\n')};`
                   {Object.entries(industryTemplates).map(([key, t]) => (
                     <button 
                       key={key}
-                      onClick={async () => {
-                        setIsGenerating(true)
+                      onClick={() => {
                         // 选中该模板对应的数据类型
                         const fieldTypes = TEMPLATE_FIELD_TYPES[key] || []
                         setSelectedTypes(fieldTypes)
                         setSelectedTemplate(key)
-                        try {
-                          const response = await fetch(`${API_BASE}/industry/templates/generate`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ template_name: key, count, validate: enableValidate, dedup: enableDedup })
-                          })
-                          const result = await response.json()
-                          if (result.success) {
-                            setData(result.data)
-                            setColumns(result.fields)
-                            // 保留选中的模板和类型，不清空
-                            setRegexData([])
-                            toast({ description: `已生成 ${result.count} 条${result.template}数据`, variant: 'success' })
-                          } else {
-                            setError(result.message || '生成失败')
-                          }
-                        } catch {
-                          setError('生成失败')
-                        } finally {
-                          setIsGenerating(false)
-                        }
+                        setData([]) // 清空之前的数据
                       }}
                       className={`type-btn text-xs ${selectedTemplate === key ? 'active' : ''}`}
                     >
