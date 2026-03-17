@@ -467,3 +467,20 @@
     animation-name: slideInFromTop;
   }
 }
+
+/* ===== 强制覆盖层（解决 Tailwind v4 @layer 优先级问题）===== */
+/* 按钮选中状态 - 必须在 @layer 外部才能生效 */
+.type-btn.active {
+  background: linear-gradient(135deg, #ff6b4a 0%, #ff8f70 100%) !important;
+  border-color: #ff6b4a !important;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(255, 107, 74, 0.3) !important;
+}
+
+/* 亮色模式按钮选中状态 */
+[data-theme="light"] .type-btn.active {
+  background: linear-gradient(135deg, #ff6b4a 0%, #ff8f7a 100%) !important;
+  border-color: #ff6b4a !important;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(255, 107, 74, 0.3) !important;
+}
