@@ -131,10 +131,14 @@ function AppContent() {
       : [...selectedTypes, key]
     setSelectedTypes(newTypes)
     
-    // 如果是取消选中，且取消的类型在当前模板中，取消模板选中
-    if (wasSelected && selectedTemplate) {
+    // 如果有选中模板
+    if (selectedTemplate) {
       const templateTypes = TEMPLATE_FIELD_TYPES[selectedTemplate] || []
-      if (templateTypes.includes(key)) {
+      // 取消选中模板内类型 OR 增加不属于模板的类型 → 取消模板选中
+      if (wasSelected && templateTypes.includes(key)) {
+        setSelectedTemplate('')
+      } else if (!wasSelected && !templateTypes.includes(key)) {
+        // 新增的类型不属于当前模板，取消模板选中
         setSelectedTemplate('')
       }
     }
