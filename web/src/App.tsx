@@ -130,10 +130,30 @@ function AppContent() {
   }
 
   const handleGenerate = async () => {
-    if (selectedTypes.length === 0 && savedRegexes.length === 0) { setError('请至少选择一种数据类型或添加自定义规则'); return }
+    if (selectedTypes.length === 0 && savedRegexes.length === 0 && !selectedTemplate) { setError('请至少选择一种数据类型或行业模板'); return }
     setIsGenerating(true); setError(null)
     
     try {
+      // 如果选中了行业模板，使用模板API
+      if (selectedTemplate) {
+        const response = await fetch(`${API_BASE}/industry/templates/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ template_name: selectedTemplate, count, validate: enableValidate, dedup: enableDedup })
+        })
+        const result = await response.json()
+        if (result.success) {
+          setData(result.data)
+          setColumns(result.fields)
+          toast({ description: `已生成 ${result.count} 条${result.template}数据`, variant: 'success' })
+        } else {
+          setError(result.message || '生成失败')
+        }
+        setIsGenerating(false)
+        return
+      }
+      
+      // 普通数据类型生成
       const response = await fetch(`${API_BASE}/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
