@@ -163,6 +163,16 @@ function AppContent() {
       })
       const result = await response.json()
       setData(result.data); setColumns(result.types); setRegexData([])
+                            
+                            // 显示校验结果
+                            if (result.validation) {
+                              const vals = result.validation
+                              let msg = ''
+                              for (const [t, v] of Object.entries(vals)) {
+                                msg += `${t}: 通过${v.passed}/失败${v.failed} `
+                              }
+                              toast({ description: `校验: ${msg}`, variant: 'success' })
+                            }
     } catch { setError('生成失败') }
     finally { setIsGenerating(false) }
   }
