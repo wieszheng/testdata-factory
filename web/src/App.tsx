@@ -55,6 +55,7 @@ function AppContent() {
   const [columns, setColumns] = useState<string[]>([])
   const [copied, setCopied] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [generateProgress, setGenerateProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
   
   // 校验和去重开关
@@ -146,7 +147,7 @@ function AppContent() {
 
   const handleGenerate = async () => {
     if (selectedTypes.length === 0 && savedRegexes.length === 0) { setError('请至少选择一种数据类型或添加自定义规则'); return }
-    setIsGenerating(true); setError(null)
+    setIsGenerating(true); setError(null); setGenerateProgress(0)
     
     try {
       const response = await fetch(`${API_BASE}/generate`, {
@@ -587,6 +588,16 @@ ${values.join(',\n')};`
                 {isGenerating ? '生成中...' : '立即生成'}
               </button>
             </div>
+            
+            {/* 生成进度条 */}
+            {isGenerating && (
+              <div className="mt-2">
+                <div className={`h-1 rounded-full ${isDark ? 'bg-white/10' : 'bg-gray-200'}`}>
+                  <div className="h-1 rounded-full bg-gradient-to-r from-[#ff6b4a] to-[#ff8f7a] animate-pulse" style={{ width: '60%' }} />
+                </div>
+                <p className={`text-[10px] mt-1 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>正在生成数据...</p>
+              </div>
+            )}
           </div>
 
           {/* 数据库逆向面板 */}
