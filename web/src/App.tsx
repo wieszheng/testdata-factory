@@ -739,13 +739,18 @@ ${values.join(',\n')};`
                   {data.length > 0 ? (
                     <table className={`min-w-full ${isDark ? 'table-glass' : 'text-gray-900'}`}>
                       <thead className={`sticky top-0 ${isDark ? '' : 'bg-gray-100'}`}><tr>{columns.map(col => <th key={col} className={`text-[10px] py-1.5 px-2 whitespace-nowrap font-medium ${isDark ? '' : 'text-left'}`}>{TYPE_LABELS[col] || col}</th>)}</tr></thead>
-                      <tbody>{data.map((row, i) => <tr key={i} className={isDark ? '' : 'border-b border-gray-100'}>{columns.map(col => <td key={col} className={`text-[10px] py-1.5 px-2 whitespace-nowrap ${isDark ? '' : 'text-gray-700'}`}>{row[col] || '-'}</td>)}</tr>)}</tbody>
+                      <tbody>{data.slice(0, 100).map((row, i) => <tr key={i} className={isDark ? '' : 'border-b border-gray-100'}>{columns.map(col => <td key={col} className={`text-[10px] py-1.5 px-2 whitespace-nowrap ${isDark ? '' : 'text-gray-700'}`}>{row[col] || '-'}</td>)}</tr>)}</tbody>
                     </table>
                   ) : (
                     <table className={`min-w-full ${isDark ? 'table-glass' : 'text-gray-900'}`}>
                       <thead className={`sticky top-0 ${isDark ? '' : 'bg-gray-100'}`}><tr><th className={`text-[10px] py-1.5 px-2 font-medium ${isDark ? '' : 'text-left'}`}>{regexName}</th></tr></thead>
-                      <tbody>{regexData.map((v, i) => <tr key={i} className={isDark ? '' : 'border-b border-gray-100'}><td className={`text-[10px] py-1.5 px-2 ${isDark ? '' : 'text-gray-700'}`}>{v}</td></tr>)}</tbody>
+                      <tbody>{regexData.slice(0, 100).map((v, i) => <tr key={i} className={isDark ? '' : 'border-b border-gray-100'}><td className={`text-[10px] py-1.5 px-2 ${isDark ? '' : 'text-gray-700'}`}>{v}</td></tr>)}</tbody>
                     </table>
+                  )}
+                  {data.length > 100 && (
+                    <div className={`p-2 text-center text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>
+                      显示前 100 条，共 {data.length} 条 | <button onClick={handleExportCSV} className="text-[#ff6b4a] underline">导出全部</button>
+                    </div>
                   )}
                 </div>
               ) : (
