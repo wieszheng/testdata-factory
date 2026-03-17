@@ -62,7 +62,7 @@ def _generate_from_pattern(pattern: str) -> str:
     - \A: 大写字母
     - [abc]: 字符类
     - [a-z]: 范围
-    - {n}: 重复 n 次
+    - {n}: 重复 n 次（每次重新生成）
     - {n,m}: 重复 n-m 次
     - *: 0-n 次
     - +: 1-n 次
@@ -81,18 +81,43 @@ def _generate_from_pattern(pattern: str) -> str:
             # 转义字符
             if i + 1 < len(pattern):
                 next_char = pattern[i + 1]
+                # 保存字符集供后续重复使用
+                char_set = None
                 if next_char == 'd':
-                    result.append(random.choice(string.digits))
+                    char_set = string.digits
                 elif next_char == 'w':
-                    result.append(random.choice(string.ascii_letters + string.digits + '_'))
+                    char_set = string.ascii_letters + string.digits + '_'
                 elif next_char == 'a':
-                    result.append(random.choice(string.ascii_lowercase))
+                    char_set = string.ascii_lowercase
                 elif next_char == 'A':
-                    result.append(random.choice(string.ascii_uppercase))
+                    char_set = string.ascii_uppercase
                 elif next_char == 's':
-                    result.append(random.choice(' \t'))
+                    char_set = ' \t'
                 elif next_char in CHAR_SETS:
-                    result.append(random.choice(CHAR_SETS[next_char]))
+                    char_set = CHAR_SETS[next_char]
+                
+                if char_set:
+                    # 检查后面是否有量词
+                    if i + 2 < len(pattern) and pattern[i + 2] == '{':
+                        # 找到量词
+                        j = i + 3
+                        while j < len(pattern) and pattern[j] != '}':
+                            j += 1
+                        if j < len(pattern):
+                            count_str = pattern[i+3:j]
+                            if ',' in count_str:
+                                parts = count_str.split(',')
+                                min_c = int(parts[0]) if parts[0] else 1
+                                max_c = int(parts[1]) if parts[1] else min_c + 5
+                                repeat = random.randint(min_c, max_c)
+                            else:
+                                repeat = int(count_str)
+                            # 每次重新生成
+                            result.append(''.join(random.choice(char_set) for _ in range(repeat)))
+                            i = j + 1
+                            continue
+                    # 没有量词，生成一个
+                    result.append(random.choice(char_set))
                 else:
                     result.append(next_char)
                 i += 2
@@ -102,11 +127,28 @@ def _generate_from_pattern(pattern: str) -> str:
         elif char == '[':
             chars, new_pos = _parse_char_class(pattern, i)
             if chars:
+                # 检查后面是否有量词
+                if new_pos < len(pattern) and pattern[new_pos] == '{':
+                    j = new_pos + 1
+                    while j < len(pattern) and pattern[j] != '}':
+                        j += 1
+                    if j < len(pattern):
+                        count_str = pattern[new_pos+1:j]
+                        if ',' in count_str:
+                            parts = count_str.split(',')
+                            min_c = int(parts[0]) if parts[0] else 1
+                            max_c = int(parts[1]) if parts[1] else min_c + 5
+                            repeat = random.randint(min_c, max_c)
+                        else:
+                            repeat = int(count_str)
+                        result.append(''.join(random.choice(chars) for _ in range(repeat)))
+                        i = j + 1
+                        continue
                 result.append(random.choice(chars))
             i = new_pos
         
         elif char == '{':
-            # 重复次数 {n} 或 {n,m}
+            # 重复次数 {n} 或 {n,m} - 处理普通字符的重复
             j = i + 1
             while j < len(pattern) and pattern[j] != '}':
                 j += 1
