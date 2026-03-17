@@ -409,7 +409,7 @@ ${values.join(',\n')};`
                           if (result.success) {
                             setData(result.data)
                             setColumns(result.fields)
-                            setSelectedTypes([])
+                            // 保留选中的模板和类型，不清空
                             setRegexData([])
                             toast({ description: `已生成 ${result.count} 条${result.template}数据`, variant: 'success' })
                           } else {
