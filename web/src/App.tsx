@@ -57,6 +57,10 @@ function AppContent() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
+  // 校验和去重开关
+  const [enableValidate, setEnableValidate] = useState(true)
+  const [enableDedup, setEnableDedup] = useState(false)
+  
   // 自定义正则模态框
   const [showRegexModal, setShowRegexModal] = useState(false)
   const [regexPattern, setRegexPattern] = useState('')
@@ -116,7 +120,9 @@ function AppContent() {
         body: JSON.stringify({ 
           count, 
           types: selectedTypes,
-          custom_rules: savedRegexes.map(r => ({ name: r.name, pattern: r.pattern }))
+          custom_rules: savedRegexes.map(r => ({ name: r.name, pattern: r.pattern })),
+          validate: enableValidate,
+          dedup: enableDedup
         }),
       })
       const result = await response.json()
@@ -500,10 +506,21 @@ ${values.join(',\n')};`
 
             {/* 底部操作栏 */}
             <div className={`flex items-center justify-between pt-3 mt-3 border-t ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
-              <div className="flex items-center gap-2">
-                <label className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>生成数量</label>
-                <input type="number" value={count} onChange={(e) => setCount(Math.max(1, Math.min(1000, parseInt(e.target.value) || 1)))} min={1} max={1000} className={`text-center text-xs font-semibold py-1 px-2 rounded w-16 ${isDark ? 'input-glass' : 'border border-gray-300 bg-white'}`} />
-                <span className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-400'}`}>条</span>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5">
+                  <label className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>生成数量</label>
+                  <input type="number" value={count} onChange={(e) => setCount(Math.max(1, Math.min(1000, parseInt(e.target.value) || 1)))} min={1} max={1000} className={`text-center text-xs font-semibold py-1 px-2 rounded w-16 ${isDark ? 'input-glass' : 'border border-gray-300 bg-white'}`} />
+                  <span className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-400'}`}>条</span>
+                </div>
+                <div className="h-3 w-px bg-gray-300/30" />
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" checked={enableValidate} onChange={(e) => setEnableValidate(e.target.checked)} className="w-3 h-3 rounded accent-[#ff6b4a]" />
+                  <span className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>校验</span>
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" checked={enableDedup} onChange={(e) => setEnableDedup(e.target.checked)} className="w-3 h-3 rounded accent-[#ff6b4a]" />
+                  <span className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>去重</span>
+                </label>
               </div>
               <button onClick={handleGenerate} disabled={isGenerating || (selectedTypes.length === 0 && savedRegexes.length === 0)} className={`flex items-center justify-center gap-1.5 disabled:opacity-50 h-[28px] px-4 py-1.5 text-[10px] rounded-full font-medium transition-all ${isDark ? 'btn-primary' : 'bg-gradient-to-r from-[#ff6b4a] to-[#ff8f7a] text-white shadow hover:shadow-md'}`}>
                 {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
