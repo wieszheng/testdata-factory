@@ -703,7 +703,15 @@ ${values.join(',\n')};`
                   onChange={(e) => { 
                     setRegexPattern(e.target.value); 
                     const t = templates.find(t => t.pattern === e.target.value); 
-                    if (t) setRegexName(t.name);
+                    if (t) {
+                      setRegexName(t.name);
+                      // 自动触发生成预览
+                      setTimeout(() => {
+                        if (e.target.value && regexName) {
+                          handleRegexGenerate()
+                        }
+                      }, 100)
+                    }
                   }} 
                   className={`h-9 text-[11px] rounded-md border px-3 w-full transition-colors ${
                     isDark 
