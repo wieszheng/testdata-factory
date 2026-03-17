@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
-/* ===== 设计系统：温馨科技风 (Warm Tech) ===== */
+/* ===== 设计系统：温馨科技�?(Warm Tech) ===== */
 /* Glassmorphism + Warm Tech 混合风格 */
 
 @theme {
-  /* 主色调：珊瑚粉/蜜桃橙 - 温馨感 */
+  /* 主色调：珊瑚�?蜜桃�?- 温馨�?*/
   --color-primary-50: #fff5f2;
   --color-primary-100: #ffe8e0;
   --color-primary-200: #ffd5c8;
@@ -16,7 +16,7 @@
   --color-primary-800: #a8321e;
   --color-primary-900: #8a2e1f;
 
-  /* 次要色：科技蓝紫 - 科技感 */
+  /* 次要色：科技蓝紫 - 科技�?*/
   --color-secondary-50: #f0f4ff;
   --color-secondary-100: #e0e8ff;
   --color-secondary-200: #c7d4ff;
@@ -28,7 +28,7 @@
   --color-secondary-800: #362cb3;
   --color-secondary-900: #302a8f;
 
-  /* 强调色：薄荷青 - 清新科技 */
+  /* 强调色：薄荷�?- 清新科技 */
   --color-accent-50: #ecfff8;
   --color-accent-100: #c7fff0;
   --color-accent-200: #90ffe5;
@@ -40,14 +40,14 @@
   --color-accent-800: #006358;
   --color-accent-900: #005248;
 
-  /* 背景色：深蓝灰 - 科技感底色 */
+  /* 背景色：深蓝�?- 科技感底�?*/
   --color-background: #0f1419;
   --color-surface: #1a1f2e;
   --color-surface-light: #252b3d;
   --color-foreground: #f8fafc;
   --color-foreground-muted: #94a3b8;
   
-  /* 玻璃态 */
+  /* 玻璃�?*/
   --color-glass: rgba(255, 255, 255, 0.08);
   --color-glass-border: rgba(255, 255, 255, 0.12);
   --color-glass-hover: rgba(255, 255, 255, 0.12);
@@ -114,7 +114,7 @@
     background: linear-gradient(180deg, #ff8f70 0%, #768dff 100%);
   }
 
-  /* 亮色模式滚动条 */
+  /* 亮色模式滚动�?*/
   [data-theme="light"] ::-webkit-scrollbar-track {
     background: #f3f4f6;
   }
@@ -127,7 +127,7 @@
     background: linear-gradient(180deg, #ff8f7a 0%, #5a5eff 100%);
   }
 
-  /* 选择框下拉箭头 - 移除默认样式 */
+  /* 选择框下拉箭�?- 移除默认样式 */
   select {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -138,12 +138,12 @@
     padding-right: 2.5rem;
   }
 
-  /* 亮色模式选择框 */
+  /* 亮色模式选择�?*/
   [data-theme="light"] select {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   }
 
-  /* 选项样式 - 需要配合 JS 或手动添加 */
+  /* 选项样式 - 需要配�?JS 或手动添�?*/
   option {
     background: var(--color-surface);
     color: var(--color-foreground);
@@ -174,7 +174,7 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
-  /* 主按钮：珊瑚粉渐变 */
+  /* 主按钮：珊瑚粉渐�?*/
   .btn-primary {
     background: linear-gradient(135deg, #ff6b4a 0%, #ff8f70 100%);
     color: white;
@@ -215,7 +215,7 @@
     transform: translateY(0);
   }
 
-  /* 次要按钮：玻璃态 */
+  /* 次要按钮：玻璃�?*/
   .btn-secondary {
     background: var(--color-glass);
     backdrop-filter: blur(10px);
@@ -235,7 +235,7 @@
     color: var(--color-primary-400);
   }
 
-  /* 输入框 */
+  /* 输入�?*/
   .input-glass {
     width: 100%;
     padding: 0.375rem 0.75rem;
@@ -258,7 +258,7 @@
     box-shadow: 0 0 0 3px rgba(255, 107, 74, 0.2), 0 0 20px rgba(255, 107, 74, 0.15);
   }
 
-  /* 选择按钮 - 选中态 */
+  /* 选择按钮 - 选中�?*/
   .type-btn {
     display: inline-flex;
     align-items: center;
@@ -280,13 +280,13 @@
   }
 
   .type-btn.active {
-    background: linear-gradient(135deg, rgba(255, 107, 74, 0.2) 0%, rgba(90, 94, 255, 0.2) 100%);
-    border-color: var(--color-primary-400);
-    color: var(--color-foreground);
-    box-shadow: 0 0 12px rgba(255, 107, 74, 0.15);
+    background: linear-gradient(135deg, #ff6b4a 0%, #ff8f70 100%);
+    border-color: #ff6b4a;
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 107, 74, 0.3);
   }
 
-  /* 亮色模式按钮样式 - 通过 data-theme 属性 */
+  /* 亮色模式按钮样式 - 通过 data-theme 属�?*/
   [data-theme="light"] .type-btn {
     background: #f3f4f6;
     border-color: #e5e7eb;
@@ -413,7 +413,7 @@
     animation: float 4s ease-in-out infinite;
   }
 
-  /* 分割线 */
+  /* 分割�?*/
   .divider-glow {
     height: 1px;
     background: linear-gradient(90deg, transparent 0%, rgba(255, 107, 74, 0.5) 50%, transparent 100%);

@@ -274,14 +274,14 @@ def _output_data(data, columns: list[str], output: str):
     if output:
         # 根据扩展名判断格式
         if output.endswith(".csv"):
-            export_csv(data, columns, output)
+            export_csv(data, output)
             console.print(f"[green]已导出到 {output}[/green]")
         elif output.endswith(".json"):
             export_json(data, output)
             console.print(f"[green]已导出到 {output}[/green]")
         else:
             # 默认 CSV
-            export_csv(data, columns, output + ".csv")
+            export_csv(data, output + ".csv")
             console.print(f"[green]已导出到 {output}.csv[/green]")
     else:
         # 打印前几条

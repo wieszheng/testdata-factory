@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { ToastProvider, useToast } from './components/ui/toast-provider'
 
-const API_BASE = 'http://localhost:8007/api'
+const API_BASE = 'http://localhost:8003/api'
 
 interface DataType {
   key: string
@@ -389,7 +389,7 @@ ${values.join(',\n')};`
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setIsDark(!isDark)}
-              className={`p-1.5 rounded-lg transition-colors ${isDark ? 'bg-white/10 text-yellow-400 hover:bg-white/20' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+              className={`p-1.5 rounded-lg transition-colors ${isDark ? 'btn-primary' : 'bg-gradient-to-r from-[#ff6b4a] to-[#ff8f7a] text-white'}`}
               title={isDark ? '切换亮色模式' : '切换深色模式'}
             >
               {isDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
@@ -504,7 +504,7 @@ ${values.join(',\n')};`
                 <div className="space-y-2">
                   {savedRegexes.map((regex) => (
                     <div key={regex.id} className={`flex items-center justify-between p-2 rounded-lg ${
-                      isDark ? 'bg-white/5 border border-white/10' : 'bg-gray-50 border border-gray-200'
+                      isDark ? 'bg-gradient-to-r from-[#ff6b4a]/10 to-[#5a5eff]/10 border border-[#ff6b4a]/20' : 'bg-gray-50 border border-gray-200'
                     }`}>
                       <div className="flex-1 min-w-0">
                         <p className={`text-[10px] font-medium truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
@@ -530,7 +530,7 @@ ${values.join(',\n')};`
                             } catch { setError('生成失败') }
                             finally { setIsGenerating(false) }
                           }}
-                          className={`p-1 rounded ${isDark ? 'hover:bg-white/10 text-[#05c4a5]' : 'hover:bg-gray-200 text-[#059669]'}`}
+                          className={`p-1 rounded ${isDark ? 'hover:bg-gradient-to-r hover:from-[#ff6b4a]/20 hover:to-[#5a5eff]/20 text-[#05c4a5]' : 'hover:bg-gray-200 text-[#059669]'}`}
                           title="预览"
                         >
                           <Sparkles className="w-3 h-3" />
@@ -542,14 +542,14 @@ ${values.join(',\n')};`
                             setEditingRegexId(regex.id)
                             setShowRegexModal(true)
                           }}
-                          className={`p-1 rounded ${isDark ? 'hover:bg-white/10 text-[#94a3b8]' : 'hover:bg-gray-200 text-gray-500'}`}
+                          className={`p-1 rounded ${isDark ? 'hover:bg-gradient-to-r hover:from-[#ff6b4a]/20 hover:to-[#5a5eff]/20 text-[#94a3b8]' : 'hover:bg-gray-200 text-gray-500'}`}
                           title="编辑"
                         >
                           <Edit className="w-3 h-3" />
                         </button>
                         <button 
                           onClick={() => setSavedRegexes(prev => prev.filter(r => r.id !== regex.id))}
-                          className={`p-1 rounded ${isDark ? 'hover:bg-white/10 text-red-400' : 'hover:bg-gray-200 text-red-500'}`}
+                          className={`p-1 rounded ${isDark ? 'hover:bg-gradient-to-r hover:from-[#ff6b4a]/20 hover:to-[#ff6b4a]/30 text-red-400' : 'hover:bg-gray-200 text-red-500'}`}
                           title="删除"
                         >
                           <Trash2 className="w-3 h-3" />
@@ -561,7 +561,7 @@ ${values.join(',\n')};`
               ) : (
                 <div className={`rounded-lg border-2 border-dashed p-4 text-center ${
                   isDark 
-                    ? 'border-white/10 bg-white/5' 
+                    ? 'border-[#ff6b4a]/30 bg-gradient-to-r from-[#ff6b4a]/5 to-[#5a5eff]/5' 
                     : 'border-gray-200 bg-gray-50'
                 }`}>
                   <p className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-400'}`}>
@@ -602,7 +602,7 @@ ${values.join(',\n')};`
             {/* 生成进度条 */}
             {isGenerating && (
               <div className="mt-2">
-                <div className={`h-1 rounded-full ${isDark ? 'bg-white/10' : 'bg-gray-200'}`}>
+                <div className={`h-1 rounded-full ${isDark ? 'bg-gradient-to-r from-[#ff6b4a]/30 to-[#5a5eff]/30' : 'bg-gray-200'}`}>
                   <div className="h-1 rounded-full bg-gradient-to-r from-[#ff6b4a] to-[#ff8f7a] animate-pulse" style={{ width: '60%' }} />
                 </div>
                 <p className={`text-[10px] mt-1 ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>正在生成数据...</p>
@@ -629,9 +629,9 @@ ${values.join(',\n')};`
                     <button key={type} onClick={() => setDbConfig(prev => ({ ...prev, db_type: type, port: type === 'mysql' ? 3306 : type === 'postgresql' ? 5432 : 0 }))}
                       className={`flex-1 py-1 text-[10px] rounded transition-colors ${
                         dbConfig.db_type === type 
-                          ? 'bg-[#05c4a5]/20 text-[#05c4a5] border border-[#05c4a5]/30' 
+                          ? 'btn-primary text-white' 
                           : isDark 
-                            ? 'bg-white/5 text-[#94a3b8] hover:bg-white/10 border border-transparent' 
+                            ? 'btn-secondary' 
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-transparent'
                       }`}>
                       {type === 'mysql' ? 'MySQL' : type === 'postgresql' ? 'PostgreSQL' : 'SQLite'}
@@ -696,8 +696,8 @@ ${values.join(',\n')};`
                 
                 {/* 表列表 */}
                 {dbTables.length > 0 && (
-                  <div className="border border-white/10 rounded overflow-hidden">
-                    <div className="px-2 py-1 bg-white/5 text-[9px] text-[#94a3b8]">发现 {dbTables.length} 个表</div>
+                  <div className="border border-[#ff6b4a]/20 rounded overflow-hidden">
+                    <div className="px-2 py-1 bg-gradient-to-r from-[#ff6b4a]/10 to-[#5a5eff]/10 text-[9px] text-[#94a3b8]">发现 {dbTables.length} 个表</div>
                     <div className="max-h-[120px] overflow-y-auto">
                       {dbTables.map(table => (
                         <button key={table} onClick={() => handleDbGenerate(table)}
@@ -722,7 +722,7 @@ ${values.join(',\n')};`
                   <p className={`text-[10px] ${isDark ? 'text-[#94a3b8]' : 'text-gray-500'}`}>{data.length > 0 ? `${data.length} 条 · ${columns.length} 字段` : `${regexData.length} 条`}</p>
                 </div>
                 <div className="flex items-center gap-1">
-                  <div className={`flex rounded p-0.5 mr-1 ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
+                  <div className={`flex rounded p-0.5 mr-1 ${isDark ? 'bg-gradient-to-r from-[#ff6b4a]/10 to-[#5a5eff]/10' : 'bg-gray-100'}`}>
                     <button onClick={() => setViewMode('table')} className={`p-1 rounded transition-colors ${viewMode === 'table' ? 'bg-[#ff6b4a]/20 text-[#ff6b4a]' : isDark ? 'text-[#94a3b8] hover:text-white' : 'text-gray-400 hover:text-gray-600'}`}><Table className="w-3.5 h-3.5" /></button>
                     <button onClick={() => setViewMode('json')} className={`p-1 rounded transition-colors ${viewMode === 'json' ? 'bg-[#ff6b4a]/20 text-[#ff6b4a]' : isDark ? 'text-[#94a3b8] hover:text-white' : 'text-gray-400 hover:text-gray-600'}`}><FileJson className="w-3.5 h-3.5" /></button>
                   </div>
@@ -791,7 +791,7 @@ ${values.join(',\n')};`
                   placeholder="如：订单号"
                   className={`h-9 text-[11px] rounded-md border px-3 w-full transition-colors ${
                     isDark 
-                      ? 'bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#5a5eff] focus:outline-none' 
+                      ? 'bg-gradient-to-r from-[#ff6b4a]/5 to-[#5a5eff]/5 border border-[#ff6b4a]/20 text-white placeholder:text-white/30 focus:border-[#5a5eff] focus:outline-none' 
                       : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-[#4a3df0] focus:outline-none'
                   }`} 
                 />
@@ -818,7 +818,7 @@ ${values.join(',\n')};`
                   }} 
                   className={`h-9 text-[11px] rounded-md border px-3 w-full transition-colors ${
                     isDark 
-                      ? 'bg-white/5 border-white/10 text-white' 
+                      ? 'bg-gradient-to-r from-[#ff6b4a]/5 to-[#5a5eff]/5 border border-[#ff6b4a]/20 text-white' 
                       : 'bg-white border-gray-300 text-gray-900'
                   }`}
                 >
@@ -840,7 +840,7 @@ ${values.join(',\n')};`
                   placeholder="如：ORD\d{14} 或 \d{4}-\d{4}-\d{4}"
                   className={`h-9 text-[11px] font-mono rounded-md border px-3 w-full transition-colors ${
                     isDark 
-                      ? 'bg-white/5 border-white/10 text-[#05c4a5] placeholder:text-white/30 focus:border-[#05c4a5] focus:outline-none' 
+                      ? 'bg-gradient-to-r from-[#ff6b4a]/5 to-[#5a5eff]/5 border border-[#ff6b4a]/20 text-[#05c4a5] placeholder:text-white/30 focus:border-[#05c4a5] focus:outline-none' 
                       : 'bg-white border-gray-300 text-[#059669] placeholder:text-gray-400 focus:border-[#059669] focus:outline-none'
                   }`} 
                 />
@@ -851,7 +851,7 @@ ${values.join(',\n')};`
               <button 
                 onClick={() => setShowRegexModal(false)} 
                 className={`py-2 px-4 rounded-lg text-[11px] font-medium transition-colors ${
-                  isDark ? 'bg-white/10 text-[#94a3b8] hover:bg-white/20' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  isDark ? 'btn-primary' : 'bg-gradient-to-r from-[#ff6b4a] to-[#ff8f7a] text-white'
                 }`}
               >
                 取消
@@ -876,7 +876,7 @@ ${values.join(',\n')};`
                 }} 
                 disabled={!regexPattern.trim() || !regexName.trim()}
                 className={`py-2 px-3 rounded-lg text-[11px] font-medium transition-colors ${
-                  isDark ? 'bg-white/10 text-[#94a3b8] hover:bg-white/20' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  isDark ? 'btn-primary' : 'bg-gradient-to-r from-[#ff6b4a] to-[#ff8f7a] text-white'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 仅保存
