@@ -122,24 +122,24 @@
     background: linear-gradient(90deg, #ff8f70 0%, #768dff 100%);
   }
 
-  /* 亮色模式滚动�?*/
-  [data-theme="light"] ::-webkit-scrollbar-track {
+  /* 亮色模式滚动条 */
+  html:has([data-theme="light"]) ::-webkit-scrollbar-track {
     background: #f3f4f6;
   }
 
-  [data-theme="light"] ::-webkit-scrollbar-thumb {
+  html:has([data-theme="light"]) ::-webkit-scrollbar-thumb {
     background: linear-gradient(180deg, #ff6b4a 0%, #4a3df0 100%);
   }
 
-  [data-theme="light"] ::-webkit-scrollbar-thumb:horizontal {
+  html:has([data-theme="light"]) ::-webkit-scrollbar-thumb:horizontal {
     background: linear-gradient(90deg, #ff6b4a 0%, #4a3df0 100%);
   }
 
-  [data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  html:has([data-theme="light"]) ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(180deg, #ff8f7a 0%, #5a5eff 100%);
   }
 
-  [data-theme="light"] ::-webkit-scrollbar-thumb:horizontal:hover {
+  html:has([data-theme="light"]) ::-webkit-scrollbar-thumb:horizontal:hover {
     background: linear-gradient(90deg, #ff8f7a 0%, #5a5eff 100%);
   }
 
