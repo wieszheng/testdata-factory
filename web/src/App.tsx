@@ -97,7 +97,7 @@ function AppContent() {
   const [regexPreviewCount, setRegexPreviewCount] = useState(10)
   
   // 主题切换
-  const [isDark, setIsDark] = useState(true)
+  const [isDark, setIsDark] = useState(false)
   
   // 数据库相关
   const [showDbPanel, setShowDbPanel] = useState(false)
