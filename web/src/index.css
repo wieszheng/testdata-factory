@@ -110,8 +110,16 @@
     border-radius: 100px;
   }
 
+  ::-webkit-scrollbar-thumb:horizontal {
+    background: linear-gradient(90deg, #ff6b4a 0%, #5a5fff 100%);
+  }
+
   ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(180deg, #ff8f70 0%, #768dff 100%);
+  }
+
+  ::-webkit-scrollbar-thumb:horizontal:hover {
+    background: linear-gradient(90deg, #ff8f70 0%, #768dff 100%);
   }
 
   /* 亮色模式滚动�?*/
@@ -123,8 +131,16 @@
     background: linear-gradient(180deg, #ff6b4a 0%, #4a3df0 100%);
   }
 
+  [data-theme="light"] ::-webkit-scrollbar-thumb:horizontal {
+    background: linear-gradient(90deg, #ff6b4a 0%, #4a3df0 100%);
+  }
+
   [data-theme="light"] ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(180deg, #ff8f7a 0%, #5a5eff 100%);
+  }
+
+  [data-theme="light"] ::-webkit-scrollbar-thumb:horizontal:hover {
+    background: linear-gradient(90deg, #ff8f7a 0%, #5a5eff 100%);
   }
 
   /* 选择框下拉箭�?- 移除默认样式 */
