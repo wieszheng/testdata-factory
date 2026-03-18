@@ -443,7 +443,7 @@ ${values.join(',\n')};`
         <div className={`absolute bottom-0 right-1/4 w-96 h-96 rounded-full blur-3xl ${isDark ? 'bg-[#5a5eff] opacity-10' : 'bg-blue-400 opacity-20'}`} />
       </div>
 
-      <nav className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b ${isDark ? 'bg-[#0f1419]/80 border-white/10' : 'bg-white/80 border-gray-200'}`}>
+      <nav className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/40 border-gray-200/50'}`}>
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className={`p-1.5 rounded-lg ${isDark ? 'bg-gradient-to-br from-[#ff6b4a] to-[#ff8f7a]' : 'bg-gradient-to-br from-[#ff6b4a] to-[#ff8f7a]'}`}><Sparkles className="w-4 h-4 text-white" /></div>
